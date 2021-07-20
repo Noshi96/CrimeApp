@@ -1,0 +1,24 @@
+package com.globallogic.knowyourcrime.uk.feature.crimemap.view
+
+import android.os.Bundle
+import android.util.Log
+import android.view.View
+import androidx.fragment.app.Fragment
+import com.globallogic.knowyourcrime.R
+import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
+import org.koin.android.ext.android.inject
+
+class CrimeMapFragment : Fragment(R.layout.crime_map) {
+
+    private val viewModel: CrimeMapFragmentViewModel by inject()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.getAllCrimes(52.629729, -1.131592, "2021-05")
+        viewModel.allCrimes.observe(viewLifecycleOwner) {
+            Log.d("CrimeMapFragment", it.size.toString())
+            Log.d("CrimeMapFragment", it[300].category)
+        }
+    }
+}
