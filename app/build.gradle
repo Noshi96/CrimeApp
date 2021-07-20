@@ -49,8 +49,10 @@ dependencies {
     implementation projectDependencies.coroutines_android
     kapt projectDependencies.databinding
     implementation projectDependencies.google_material
+    implementation projectDependencies.gson
     implementation projectDependencies.kotlin
     implementation projectDependencies.koin
+    implementation projectDependencies.koin_viewmodel
     implementation projectDependencies.ktx
     implementation projectDependencies.navigation_fragment_ktx
     implementation projectDependencies.navigation_ui_ktx
