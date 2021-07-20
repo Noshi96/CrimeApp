@@ -47,4 +47,39 @@ class CrimeMapFragmentViewModel(private val crimesRepository: CrimesRepositoryAP
         super.onCleared()
         job?.cancel()
     }
+
+
+    private val _currentCheckedChipName = MutableLiveData<String>()
+    var currentCheckedChipName: LiveData<String> = _currentCheckedChipName
+
+    private val _currentCheckedChipId = MutableLiveData<Int>()
+    var currentCheckedChipId: LiveData<Int> = _currentCheckedChipId
+
+    private val _checkedChipsIdsList = MutableLiveData<List<Int>>()
+    var checkedChipsIdsList: LiveData<List<Int>> = _checkedChipsIdsList
+
+    private val _checkedChipsNamesList = MutableLiveData<List<String>>()
+    var checkedChipsNamesList: LiveData<List<String>> = _checkedChipsNamesList
+
+
+    var onSelectedChipChangeNewAdd = MutableLiveData<Boolean?>()
+    var onSelectedChipChangeNewDelete = MutableLiveData<Boolean?>()
+
+
+    fun setCurrentCheckedChipName(currentCheckedChipName: String) {
+        _currentCheckedChipName.value = currentCheckedChipName
+    }
+
+    fun setCurrentCheckedChipId(currentCheckedChipId: Int) {
+        _currentCheckedChipId.value = currentCheckedChipId
+    }
+
+    fun setCurrentCheckedChipsIdsList(checkedChipsIds: List<Int>) {
+        _checkedChipsIdsList.value = checkedChipsIds
+    }
+
+    fun setCurrentCheckedNamesList(currentCheckedNames: MutableList<String>) {
+        _checkedChipsNamesList.value = currentCheckedNames
+    }
+
 }
