@@ -21,6 +21,9 @@ class CrimeMapFragmentViewModel(
     private val _crimeCategories = MutableLiveData<CrimeCategories>()
     val crimeCategories: LiveData<CrimeCategories> = _crimeCategories
 
+    private val _chipCategories = MutableLiveData<MutableList<String>>()
+    val chipCategories: LiveData<MutableList<String>> = _chipCategories
+
     private val _currentCheckedChipName = MutableLiveData<String>()
     var currentCheckedChipName: LiveData<String> = _currentCheckedChipName
 
@@ -54,10 +57,26 @@ class CrimeMapFragmentViewModel(
                 .collect {
                     _allCrimes.value = it
                 }
-            }
         }
+    }
 
-    fun onSelectedChipChangesSendToViewModel(chip: Chip, checkedChipIds: List<Int>, currentCheckedNames: MutableList<String>) {
+    fun loadChipCategories() {
+        viewModelScope.launch {
+            crimesInfoService.getRecentCrimeCategories()
+                .collect {
+                    _chipCategories.value =
+                        it.map { category ->
+                            category.name
+                        }.toMutableList()
+                }
+        }
+    }
+
+    fun onSelectedChipChangesSendToViewModel(
+        chip: Chip,
+        checkedChipIds: List<Int>,
+        currentCheckedNames: MutableList<String>
+    ) {
 
         _checkedChipsIdsList.value = checkedChipIds
         _checkedChipsNamesList.value = currentCheckedNames
