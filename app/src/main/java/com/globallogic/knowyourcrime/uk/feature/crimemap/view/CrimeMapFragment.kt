@@ -65,27 +65,12 @@ class CrimeMapFragment : Fragment(R.layout.crime_map) {
     private fun setChipsListenerAndUpdateViewModel(chipsList: MutableList<Chip>) {
         chipsList.forEach { chip ->
             chip.setOnClickListener {
-                onSelectedChipChangesSendToViewModel(chip)
+                val currentCheckedNames = mutableListOf<String>()
+                binding.chipGroup.checkedChipIds.forEach { chipId ->
+                    currentCheckedNames.add(binding.chipGroup.findViewById<Chip>(chipId).text.toString())
+                }
+                viewModel.onSelectedChipChangesSendToViewModel(chip, binding.chipGroup.checkedChipIds, currentCheckedNames)
             }
         }
     }
-
-    private fun onSelectedChipChangesSendToViewModel(chip: Chip) {
-
-        viewModel.setCurrentCheckedChipsIdsList(checkedChipsIds = binding.chipGroup.checkedChipIds)
-        val currentCheckedNames = mutableListOf<String>()
-        binding.chipGroup.checkedChipIds.forEach { chipId ->
-            currentCheckedNames.add(binding.chipGroup.findViewById<Chip>(chipId).text.toString())
-        }
-        viewModel.setCurrentCheckedNamesList(currentCheckedNames = currentCheckedNames)
-        viewModel.setCurrentCheckedChipName(currentCheckedChipName = chip.text.toString())
-        viewModel.setCurrentCheckedChipId(currentCheckedChipId = chip.id)
-
-        if (chip.isChecked) {
-            viewModel.onSelectedChipChangeNewAdd.value = true
-        } else {
-            viewModel.onSelectedChipChangeNewDelete.value = true
-        }
-    }
-
 }

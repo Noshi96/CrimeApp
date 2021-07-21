@@ -1,10 +1,13 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.globallogic.knowyourcrime.uk.api.CrimesRepositoryAPI
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.*
 
 class CrimeMapFragmentViewModel(private val crimesRepository: CrimesRepositoryAPI) : ViewModel() {
@@ -65,21 +68,18 @@ class CrimeMapFragmentViewModel(private val crimesRepository: CrimesRepositoryAP
     var onSelectedChipChangeNewAdd = MutableLiveData<Boolean?>()
     var onSelectedChipChangeNewDelete = MutableLiveData<Boolean?>()
 
+    fun onSelectedChipChangesSendToViewModel(chip: Chip, checkedChipIds: List<Int>, currentCheckedNames: MutableList<String>) {
 
-    fun setCurrentCheckedChipName(currentCheckedChipName: String) {
-        _currentCheckedChipName.value = currentCheckedChipName
-    }
-
-    fun setCurrentCheckedChipId(currentCheckedChipId: Int) {
-        _currentCheckedChipId.value = currentCheckedChipId
-    }
-
-    fun setCurrentCheckedChipsIdsList(checkedChipsIds: List<Int>) {
-        _checkedChipsIdsList.value = checkedChipsIds
-    }
-
-    fun setCurrentCheckedNamesList(currentCheckedNames: MutableList<String>) {
+        _checkedChipsIdsList.value = checkedChipIds
         _checkedChipsNamesList.value = currentCheckedNames
-    }
+        _currentCheckedChipName.value = chip.text.toString()
+        _currentCheckedChipId.value = chip.id
 
+        if (chip.isChecked) {
+            onSelectedChipChangeNewAdd.value = true
+        } else {
+            onSelectedChipChangeNewDelete.value = true
+        }
+
+    }
 }
