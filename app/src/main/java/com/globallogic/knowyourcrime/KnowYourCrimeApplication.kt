@@ -4,6 +4,7 @@ import android.app.Application
 import com.globallogic.knowyourcrime.uk.di.crimeMapModule
 import com.globallogic.knowyourcrime.uk.di.crimesAPIModule
 import com.globallogic.knowyourcrime.uk.di.networkApiModule
+import com.globallogic.knowyourcrime.uk.di.splashScreenModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -19,7 +20,8 @@ class KnowYourCrimeApplication : Application() {
             modules(
                 networkApiModule,
                 crimesAPIModule,
-                crimeMapModule
+                crimeMapModule,
+                splashScreenModule
             )
         }
     }

@@ -15,10 +15,16 @@ class CrimeMapFragment : Fragment(R.layout.crime_map) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getAllCrimes(52.629729, -1.131592, "2021-05")
+        viewModel.loadCrimeCategories()
+        viewModel.loadAllCrimes(52.629729, -1.131592)
+
+        viewModel.crimeCategories.observe(viewLifecycleOwner) {
+            Log.d("CrimeMapFragment", it.toString())
+        }
+
         viewModel.allCrimes.observe(viewLifecycleOwner) {
             Log.d("CrimeMapFragment", it.size.toString())
-            Log.d("CrimeMapFragment", it[300].category)
+            Log.d("CrimeMapFragment", it.toString())
         }
     }
 }
