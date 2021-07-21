@@ -49,6 +49,7 @@ dependencies {
     implementation projectDependencies.coroutines_android
     kapt projectDependencies.databinding
     implementation projectDependencies.google_material
+    implementation projectDependencies.google_services_maps
     implementation projectDependencies.gson
     implementation projectDependencies.kotlin
     implementation projectDependencies.koin
