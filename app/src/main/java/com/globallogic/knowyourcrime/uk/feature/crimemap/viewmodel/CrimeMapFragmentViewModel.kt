@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.globallogic.knowyourcrime.uk.api.CrimesInfoService
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -19,6 +20,21 @@ class CrimeMapFragmentViewModel(
 
     private val _crimeCategories = MutableLiveData<CrimeCategories>()
     val crimeCategories: LiveData<CrimeCategories> = _crimeCategories
+
+    private val _currentCheckedChipName = MutableLiveData<String>()
+    var currentCheckedChipName: LiveData<String> = _currentCheckedChipName
+
+    private val _currentCheckedChipId = MutableLiveData<Int>()
+    var currentCheckedChipId: LiveData<Int> = _currentCheckedChipId
+
+    private val _checkedChipsIdsList = MutableLiveData<List<Int>>()
+    var checkedChipsIdsList: LiveData<List<Int>> = _checkedChipsIdsList
+
+    private val _checkedChipsNamesList = MutableLiveData<List<String>>()
+    var checkedChipsNamesList: LiveData<List<String>> = _checkedChipsNamesList
+
+    var onSelectedChipChangeNewAdd = MutableLiveData<Boolean?>()
+    var onSelectedChipChangeNewDelete = MutableLiveData<Boolean?>()
 
     fun loadCrimeCategories() {
         viewModelScope.launch {
@@ -38,6 +54,21 @@ class CrimeMapFragmentViewModel(
                 .collect {
                     _allCrimes.value = it
                 }
+            }
         }
+
+    fun onSelectedChipChangesSendToViewModel(chip: Chip, checkedChipIds: List<Int>, currentCheckedNames: MutableList<String>) {
+
+        _checkedChipsIdsList.value = checkedChipIds
+        _checkedChipsNamesList.value = currentCheckedNames
+        _currentCheckedChipName.value = chip.text.toString()
+        _currentCheckedChipId.value = chip.id
+
+        if (chip.isChecked) {
+            onSelectedChipChangeNewAdd.value = true
+        } else {
+            onSelectedChipChangeNewDelete.value = true
+        }
+
     }
 }
