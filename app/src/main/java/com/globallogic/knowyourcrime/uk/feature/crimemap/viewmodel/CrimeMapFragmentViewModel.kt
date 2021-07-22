@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.globallogic.knowyourcrime.uk.api.CrimesInfoService
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -54,6 +55,19 @@ class CrimeMapFragmentViewModel(
     ) {
         viewModelScope.launch {
             crimesInfoService.getAllRecentCrimesFromNetwork(latitude, longitude)
+                .collect {
+                    _allCrimes.value = it
+                }
+        }
+    }
+
+    fun loadAllCrimes(
+        latLngBounds: LatLngBounds,
+        latitude: Double,
+        longitude: Double
+    ) {
+        viewModelScope.launch {
+            crimesInfoService.getAllRecentCrimesFromNetwork(latLngBounds, latitude, longitude)
                 .collect {
                     _allCrimes.value = it
                 }

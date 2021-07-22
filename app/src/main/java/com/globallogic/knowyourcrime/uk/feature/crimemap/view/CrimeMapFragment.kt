@@ -136,7 +136,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private fun loadViewModelData() {
         viewModel.loadCrimeCategories()
         viewModel.loadChipCategories()
-        viewModel.loadAllCrimes(51.52830802068529, -0.13734309192562905)
     }
 
     private fun loadGoogleMaps() {
@@ -151,5 +150,15 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         val london = LatLng(51.52830802068529, -0.13734309192562905)
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(london))
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(london, 16.0f))
+
+        googleMap.setOnCameraIdleListener {
+            if (googleMap.cameraPosition.zoom < 20.0f) {
+                viewModel.loadAllCrimes(
+                    googleMap.projection.visibleRegion.latLngBounds,
+                    googleMap.cameraPosition.target.latitude,
+                    googleMap.cameraPosition.target.longitude
+                )
+            }
+        }
     }
 }

@@ -13,4 +13,9 @@ class CrimesRepository(private val crimesRepositoryAPI: CrimesRepositoryAPI) {
         val crimes = crimesRepositoryAPI.getAllCrimes(latitude, longitude, date)
         emit(crimes)
     }.flowOn(Dispatchers.IO)
+
+    fun getAllCrimes(poly: String, date: String): Flow<Crimes> = flow {
+        val crimes = crimesRepositoryAPI.getAllCrimes(poly, date)
+        emit(crimes)
+    }.flowOn(Dispatchers.IO)
 }

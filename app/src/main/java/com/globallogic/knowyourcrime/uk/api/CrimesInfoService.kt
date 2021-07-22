@@ -6,8 +6,11 @@ import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategori
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.LastUpdated
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.repository.CrimeCategoriesRepositoryAPI
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.repository.LastUpdatedRepositoryAPI
+import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+
+private const val LOCAL_AREA_ADDITIONAL_OFFSET = 0.005
 
 class CrimesInfoService(
     private val crimeCategoriesRepository: CrimeCategoriesRepositoryAPI,
@@ -22,6 +25,28 @@ class CrimesInfoService(
     fun getAllCrimesFromNetwork(latitude: Double, longitude: Double, date: String): Flow<Crimes> =
         crimesRepository.getAllCrimes(latitude, longitude, date)
 
+    fun getAllCrimesFromNetwork(
+        latLngBounds: LatLngBounds,
+        latitude: Double,
+        longitude: Double,
+        date: String
+    ): Flow<Crimes> = flow {
+        val poly = StringBuilder()
+        poly.append(latitude)
+            .append(",")
+            .append(latLngBounds.southwest.longitude - LOCAL_AREA_ADDITIONAL_OFFSET)
+            .append(":")
+            .append(latLngBounds.southwest.latitude - LOCAL_AREA_ADDITIONAL_OFFSET)
+            .append(",")
+            .append(latLngBounds.northeast.longitude + LOCAL_AREA_ADDITIONAL_OFFSET)
+            .append(":")
+            .append(latLngBounds.northeast.latitude + LOCAL_AREA_ADDITIONAL_OFFSET)
+            .append(",")
+            .append(longitude)
+
+        emitAll(crimesRepository.getAllCrimes(poly.toString(), date))
+    }.flowOn(Dispatchers.IO)
+
     fun getRecentCrimeCategories(): Flow<CrimeCategories> = flow {
         getLastUpdated().collect {
             emitAll(getCrimeCategories(cutDate(it.date)))
@@ -31,6 +56,16 @@ class CrimesInfoService(
     fun getAllRecentCrimesFromNetwork(latitude: Double, longitude: Double): Flow<Crimes> = flow {
         getLastUpdated().collect {
             emitAll(getAllCrimesFromNetwork(latitude, longitude, cutDate(it.date)))
+        }
+    }.flowOn(Dispatchers.IO)
+
+    fun getAllRecentCrimesFromNetwork(
+        latLngBounds: LatLngBounds,
+        latitude: Double,
+        longitude: Double
+    ): Flow<Crimes> = flow {
+        getLastUpdated().collect {
+            emitAll(getAllCrimesFromNetwork(latLngBounds, latitude, longitude, cutDate(it.date)))
         }
     }.flowOn(Dispatchers.IO)
 
