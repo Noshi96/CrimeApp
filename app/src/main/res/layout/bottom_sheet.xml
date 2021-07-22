@@ -1,17 +1,171 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomSheet"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="#ffffff"
-    android:paddingBottom="32dp">
+    android:layout_height="400dp"
+    android:background="@drawable/bottom_sheet_white_rounded"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="32dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <ImageView
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.6"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_10p"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_90p"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_40p"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4"/>
+
+    <View
+        android:id="@+id/view_up_bottom_bar"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="5dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/grey_bar_view_rounded"
+        app:layout_constraintEnd_toEndOf="@id/guideline_end"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <HorizontalScrollView
+        android:id="@+id/horizontal_scroll_bottom_sheet_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/bottom_sheet_chip_group"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        app:singleLine="true"
+        app:singleSelection="false">
+
+        <com.google.android.material.chip.Chip
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+            android:text="sample"
+            android:checkable="true"
+            android:checked="false"
+            android:elevation="@dimen/elevation_chips"
+            android:textColor="@color/black"
+            app:chipBackgroundColor="@color/chip_bg_states"
+            app:chipIconVisible="true" />
+
+        <com.google.android.material.chip.Chip
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+            android:text="sample"
+            android:checkable="true"
+            android:checked="false"
+            android:elevation="@dimen/elevation_chips"
+            android:textColor="@color/black"
+            app:chipBackgroundColor="@color/chip_bg_states"
+            app:chipIconVisible="true" />
+
+        <com.google.android.material.chip.Chip
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+            android:text="sample"
+            android:checkable="true"
+            android:checked="false"
+            android:elevation="@dimen/elevation_chips"
+            android:textColor="@color/black"
+            app:chipBackgroundColor="@color/chip_bg_states"
+            app:chipIconVisible="true" />
+
+        <com.google.android.material.chip.Chip
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+            android:text="sample"
+            android:checkable="true"
+            android:checked="false"
+            android:elevation="@dimen/elevation_chips"
+            android:textColor="@color/black"
+            app:chipBackgroundColor="@color/chip_bg_states"
+            app:chipIconVisible="true" />
+
+        <com.google.android.material.chip.Chip
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+            android:text="sample"
+            android:checkable="true"
+            android:checked="false"
+            android:elevation="@dimen/elevation_chips"
+            android:textColor="@color/black"
+            app:chipBackgroundColor="@color/chip_bg_states"
+            app:chipIconVisible="true" />
+
+    </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <View
+        android:id="@+id/view_separator"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="#41999999"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline_10p"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_90p"
+        app:layout_constraintTop_toBottomOf="@+id/horizontal_scroll_bottom_sheet_view" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_0"
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_separator" />
+
+    <!--<ImageView
         android:id="@+id/imageView"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="132dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_baseline_sports_baseball_24" />
@@ -34,10 +188,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
+        android:contentDescription="contentDescription"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:srcCompat="@drawable/ic_baseline_sports_baseball_24"
-        android:contentDescription="contentDescription" />
+        app:srcCompat="@drawable/ic_baseline_sports_baseball_24" />
 
     <TextView
         android:id="@+id/textView2"
@@ -100,6 +254,6 @@
         android:text="Personal"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="@+id/textView4"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

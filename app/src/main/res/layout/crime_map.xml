@@ -45,9 +45,18 @@
                 app:singleSelection="false">
 
             </com.google.android.material.chip.ChipGroup>
-
+            
         </HorizontalScrollView>
 
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@+id/bottom_sheet"
+                layout="@layout/bottom_sheet" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

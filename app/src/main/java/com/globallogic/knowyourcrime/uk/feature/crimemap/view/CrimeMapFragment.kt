@@ -1,14 +1,16 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.globallogic.knowyourcrime.R
 import com.globallogic.knowyourcrime.databinding.CrimeMapBinding
-import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
+import com.globallogic.knowyourcrime.uk.feature.crimemap.model.*
 import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -49,6 +51,45 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
         loadViewModelData()
         loadGoogleMaps()
+
+
+        var crimes = mutableListOf<CrimesItem>()
+
+        val crimesItem1 = CrimesItem(
+            category = "Burglary",
+            context = "2",
+            id = 3,
+            location = Location(
+                latitude = "latitude",
+                longitude = "longitude",
+                street = Street(
+                    id = 2,
+                    name = "name"
+                )
+            ),
+            location_subtype = "4",
+            location_type = "Force",
+            month = "2021/07",
+            outcome_status = OutcomeStatus(
+                category = "category",
+                date = "date"
+            ),
+            persistent_id = "8"
+        )
+
+        crimes.add(crimesItem1)
+        crimes.add(crimesItem1)
+        crimes.add(crimesItem1)
+        crimes.add(crimesItem1)
+        crimes.add(crimesItem1)
+        crimes.add(crimesItem1)
+        crimes.add(crimesItem1)
+
+
+        binding.bottomSheet.recyclerViewBottomSheet.apply {
+            layoutManager = LinearLayoutManager(activity)
+            adapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>)
+        }
 
         return binding.root
     }
