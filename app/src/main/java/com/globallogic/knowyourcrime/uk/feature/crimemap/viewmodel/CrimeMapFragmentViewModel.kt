@@ -88,6 +88,5 @@ class CrimeMapFragmentViewModel(
         } else {
             onSelectedChipChangeNewDelete.value = true
         }
-
     }
 }
