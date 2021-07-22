@@ -1,23 +1,39 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.globallogic.knowyourcrime.R
 import com.globallogic.knowyourcrime.databinding.CrimeMapBinding
+import com.globallogic.knowyourcrime.uk.feature.crimemap.model.BottomSheetAdapter
+import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
+import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
 import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.chip.Chip
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
-class CrimeMapFragment : Fragment(R.layout.crime_map) {
+class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
     private val viewModel: CrimeMapFragmentViewModel by inject()
     private lateinit var _binding: CrimeMapBinding
     private val binding get() = _binding
+
+    private lateinit var googleMap: GoogleMap
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,24 +41,62 @@ class CrimeMapFragment : Fragment(R.layout.crime_map) {
         savedInstanceState: Bundle?
     ): View {
         _binding = CrimeMapBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
         viewModel.allCrimes.observe(viewLifecycleOwner) {
-            Log.d("CrimeMapFragment", it.size.toString())
-            Log.d("CrimeMapFragment", it.toString())
+            setMarkersForCrimes(it)
+            setBottomListForCrimes(it)
         }
 
         viewModel.chipCategories.observe(viewLifecycleOwner) {
-            val chipsList = mutableListOf<Chip>()
-            addChipsToViewAndLoadChipsList(it, container, chipsList)
-            setChipsListenerAndUpdateViewModel(chipsList)
+            setChipsForChipCategories(it, container)
         }
 
-        viewModel.loadCrimeCategories()
-        viewModel.loadChipCategories()
-        viewModel.loadAllCrimes(52.629729, -1.131592)
+        loadViewModelData()
+        loadGoogleMaps()
 
-        return root
+        return binding.root
+    }
+
+    private fun setBottomListForCrimes(crimes: Crimes) {
+        binding.bottomSheet.recyclerViewBottomSheet.apply {
+            layoutManager = LinearLayoutManager(activity)
+            adapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>)
+        }
+    }
+
+    private fun setMarkersForCrimes(crimes: Crimes) {
+        CoroutineScope(Dispatchers.IO).launch {
+
+            withContext(Dispatchers.Main) {
+                googleMap.clear()
+            }
+
+            crimes.forEach { crime ->
+                val latLng =
+                    LatLng(
+                        crime.location.latitude.toDouble(),
+                        crime.location.longitude.toDouble()
+                    )
+                val markerOptions = MarkerOptions()
+                markerOptions.position(latLng)
+                markerOptions.icon(
+                    BitmapDescriptorFactory.fromResource(R.drawable.marker_image)
+                )
+
+                withContext(Dispatchers.Main) {
+                    googleMap.addMarker(markerOptions)
+                }
+            }
+        }
+    }
+
+    private fun setChipsForChipCategories(
+        chipCategories: MutableList<String>,
+        container: ViewGroup?
+    ) {
+        val chipsList = mutableListOf<Chip>()
+        addChipsToViewAndLoadChipsList(chipCategories, container, chipsList)
+        setChipsListenerAndUpdateViewModel(chipsList)
     }
 
     private fun addChipsToViewAndLoadChipsList(
@@ -77,5 +131,25 @@ class CrimeMapFragment : Fragment(R.layout.crime_map) {
                 )
             }
         }
+    }
+
+    private fun loadViewModelData() {
+        viewModel.loadCrimeCategories()
+        viewModel.loadChipCategories()
+        viewModel.loadAllCrimes(51.52830802068529, -0.13734309192562905)
+    }
+
+    private fun loadGoogleMaps() {
+        val mapFragment = childFragmentManager
+            .findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
+
+        val london = LatLng(51.52830802068529, -0.13734309192562905)
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(london))
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(london, 16.0f))
     }
 }
