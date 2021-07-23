@@ -6,30 +6,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.globallogic.knowyourcrime.R
+import com.globallogic.knowyourcrime.databinding.BottomSheetBinding
+import com.globallogic.knowyourcrime.databinding.BottomSheetRowBinding
 
 class BottomSheetAdapter(private val dataSet: ArrayList<CrimesItem>) :
     RecyclerView.Adapter<BottomSheetAdapter.ViewHolder>() {
 
     @SuppressLint("CutPasteId")
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(bottomSheetRowBinding: BottomSheetRowBinding) : RecyclerView.ViewHolder(bottomSheetRowBinding.root) {
         val category: TextView
         val locationType: TextView
         val month: TextView
-
         init {
             // Define click listener for the ViewHolder's View.
-            category = view.findViewById(R.id.text_view_category)
-            locationType = view.findViewById(R.id.text_view_location_type)
-            month = view.findViewById(R.id.text_view_month)
+            category = bottomSheetRowBinding.textViewCategory
+            locationType = bottomSheetRowBinding.textViewLocationType
+            month = bottomSheetRowBinding.textViewMonth
         }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.bottom_sheet_row, viewGroup, false)
-
-        return ViewHolder(view)
+        val binding = BottomSheetRowBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {

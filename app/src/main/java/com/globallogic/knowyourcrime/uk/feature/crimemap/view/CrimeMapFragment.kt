@@ -69,6 +69,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
     private fun setMarkersForCrimes(crimes: Crimes) {
         CoroutineScope(Dispatchers.IO).launch {
+
             withContext(Dispatchers.Main) {
                 clusterManager.clearItems()
             }
@@ -139,6 +140,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private fun loadViewModelData() {
         viewModel.loadCrimeCategories()
         viewModel.loadChipCategories()
+        viewModel.loadAllCrimes(51.52830802068529, -0.13734309192562905)
     }
 
     private fun loadGoogleMaps() {
