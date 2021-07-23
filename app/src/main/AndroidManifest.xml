@@ -33,7 +33,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".uk.MainActivity" />
+        <activity android:name=".uk.MainActivity">
+            <nav-graph android:value="@navigation/map_nav" />
+        </activity>
 
     </application>
 

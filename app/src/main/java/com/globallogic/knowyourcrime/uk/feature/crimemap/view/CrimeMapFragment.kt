@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.globallogic.knowyourcrime.R
 import com.globallogic.knowyourcrime.databinding.CrimeMapBinding
@@ -196,11 +197,20 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             googleMap,
             clusterManager
         )
+
+        clusterManager.setOnClusterItemClickListener {
+            val crimesItem: CrimesItem = viewModel.getCrimesItemById(it.crimeId) ?: CrimesItem()
+            val action =
+                CrimeMapFragmentDirections.actionCrimeMapFragmentToCrimeDetailsFragment(
+                    crimesItem
+                )
+            view?.findNavController()?.navigate(action)
+            true
+        }
     }
 
     private fun setUpCamera(latitude: Double, longitude: Double, zoom: Float) {
         val latLng = LatLng(latitude, longitude)
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
     }
 }

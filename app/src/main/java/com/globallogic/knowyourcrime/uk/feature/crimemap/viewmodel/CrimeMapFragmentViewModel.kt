@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.globallogic.knowyourcrime.uk.api.CrimesInfoService
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
+import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.material.chip.Chip
@@ -85,6 +86,12 @@ class CrimeMapFragmentViewModel(
                 }
         }
     }
+
+    fun getCrimesItemById(id: Int): CrimesItem? =
+        _allCrimes.value?.find {
+            it.id == id
+        }
+
 
     fun onSelectedChipChangesSendToViewModel(
         chip: Chip,

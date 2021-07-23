@@ -30,7 +30,7 @@
                     app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
                     <fragment
-                        android:id="@+id/map"
+                        android:id="@+id/details_map"
                         android:name="com.google.android.gms.maps.SupportMapFragment"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -81,7 +81,7 @@
 
 
             <include
-                android:id="@+id/bottom_shee2t"
+                android:id="@+id/details_sheet"
                 layout="@layout/scroll" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
