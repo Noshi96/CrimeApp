@@ -22,6 +22,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.chip.Chip
 import com.google.maps.android.clustering.ClusterManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import kotlin.math.abs
 
@@ -64,21 +68,29 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setMarkersForCrimes(crimes: Crimes) {
-        clusterManager.clearItems()
-        val icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_image)
-        crimes.forEach { crime ->
-            clusterManager.addItem(
-                CrimesItemMarker(
-                    crime.id,
-                    crime.location.latitude.toDouble(),
-                    crime.location.longitude.toDouble(),
-                    icon,
-                    crime.category,
-                    crime.location.street.name
-                )
-            )
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) {
+                clusterManager.clearItems()
+            }
+            val icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_image)
+            crimes.forEach { crime ->
+                withContext(Dispatchers.Main) {
+                    clusterManager.addItem(
+                        CrimesItemMarker(
+                            crime.id,
+                            crime.location.latitude.toDouble(),
+                            crime.location.longitude.toDouble(),
+                            icon,
+                            crime.category,
+                            crime.location.street.name
+                        )
+                    )
+                }
+            }
+            withContext(Dispatchers.Main) {
+                clusterManager.cluster()
+            }
         }
-        clusterManager.cluster()
     }
 
     private fun setChipsForChipCategories(
