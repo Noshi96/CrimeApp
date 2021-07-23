@@ -12,6 +12,7 @@ import com.globallogic.knowyourcrime.databinding.CrimeMapBinding
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.BottomSheetAdapter
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
+import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItemMarker
 import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -19,13 +20,10 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.chip.Chip
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.google.maps.android.clustering.ClusterManager
 import org.koin.android.ext.android.inject
+import kotlin.math.abs
 
 class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
@@ -34,6 +32,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding
 
     private lateinit var googleMap: GoogleMap
+    private lateinit var clusterManager: ClusterManager<CrimesItemMarker>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,29 +64,21 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setMarkersForCrimes(crimes: Crimes) {
-        CoroutineScope(Dispatchers.IO).launch {
-
-            withContext(Dispatchers.Main) {
-                googleMap.clear()
-            }
-
-            crimes.forEach { crime ->
-                val latLng =
-                    LatLng(
-                        crime.location.latitude.toDouble(),
-                        crime.location.longitude.toDouble()
-                    )
-                val markerOptions = MarkerOptions()
-                markerOptions.position(latLng)
-                markerOptions.icon(
-                    BitmapDescriptorFactory.fromResource(R.drawable.marker_image)
+        clusterManager.clearItems()
+        val icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_image)
+        crimes.forEach { crime ->
+            clusterManager.addItem(
+                CrimesItemMarker(
+                    crime.id,
+                    crime.location.latitude.toDouble(),
+                    crime.location.longitude.toDouble(),
+                    icon,
+                    crime.category,
+                    crime.location.street.name
                 )
-
-                withContext(Dispatchers.Main) {
-                    googleMap.addMarker(markerOptions)
-                }
-            }
+            )
         }
+        clusterManager.cluster()
     }
 
     private fun setChipsForChipCategories(
@@ -146,19 +137,56 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
+        initClusterManager()
+        setUpCamera(51.52830802068529, -0.13734309192562905, 16.0f)
+        loadCrimesToMapBasedOnCamera(0.006, 0.006, 0.01f, 12.5f)
+    }
 
-        val london = LatLng(51.52830802068529, -0.13734309192562905)
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(london))
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(london, 16.0f))
+    private fun loadCrimesToMapBasedOnCamera(
+        latOffset: Double,
+        lngOffset: Double,
+        zoomOffset: Float,
+        maxLoadingZoom: Float
+    ) {
+        var oldPositionLat = .0
+        var oldPositionLng = .0
+        var oldZoom = .0f
 
         googleMap.setOnCameraIdleListener {
-            if (googleMap.cameraPosition.zoom < 20.0f) {
+            val distanceLat = abs(oldPositionLat - googleMap.cameraPosition.target.latitude)
+            val distanceLng = abs(oldPositionLng - googleMap.cameraPosition.target.longitude)
+            val differenceZoom = abs(oldZoom - googleMap.cameraPosition.zoom)
+
+            if (googleMap.cameraPosition.zoom > maxLoadingZoom &&
+                (distanceLat > latOffset || distanceLng > lngOffset || differenceZoom > zoomOffset)
+            ) {
                 viewModel.loadAllCrimes(
                     googleMap.projection.visibleRegion.latLngBounds,
                     googleMap.cameraPosition.target.latitude,
                     googleMap.cameraPosition.target.longitude
                 )
+
+                oldPositionLat = googleMap.cameraPosition.target.latitude
+                oldPositionLng = googleMap.cameraPosition.target.longitude
+                oldZoom = googleMap.cameraPosition.zoom
             }
         }
+    }
+
+    private fun initClusterManager() {
+        clusterManager = ClusterManager(requireActivity(), googleMap)
+        googleMap.setOnCameraIdleListener(clusterManager)
+
+        clusterManager.renderer = CrimesItemMarkerRenderer(
+            requireActivity(),
+            googleMap,
+            clusterManager
+        )
+    }
+
+    private fun setUpCamera(latitude: Double, longitude: Double, zoom: Float) {
+        val latLng = LatLng(latitude, longitude)
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
     }
 }

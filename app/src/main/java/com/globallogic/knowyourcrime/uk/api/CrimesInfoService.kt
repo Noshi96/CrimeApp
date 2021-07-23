@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 
-private const val LOCAL_AREA_ADDITIONAL_OFFSET = 0.005
+private const val LOCAL_AREA_ADDITIONAL_OFFSET = 0.006
 
 class CrimesInfoService(
     private val crimeCategoriesRepository: CrimeCategoriesRepositoryAPI,

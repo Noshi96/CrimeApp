@@ -5,6 +5,7 @@ ext {
     databinding_version = '3.1.4'
     google_material_version = '1.4.0'
     google_services_maps_version = '17.0.1'
+    google_maps_utils_version = '2.2.3'
     gson_version = '2.8.7'
     junit_version = '4.13.2'
     kotlin_version = '1.5.10'
@@ -26,6 +27,7 @@ ext {
             databinding            : "com.android.databinding:compiler:$databinding_version",
             google_material        : "com.google.android.material:material:$google_material_version",
             google_services_maps   : "com.google.android.gms:play-services-maps:$google_services_maps_version",
+            google_maps_utils      : "com.google.maps.android:android-maps-utils:$google_maps_utils_version",
             gson                   : "com.google.code.gson:gson:$gson_version",
             junit                  : "junit:junit:$junit_version",
             kotlin                 : "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
