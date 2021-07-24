@@ -1,5 +1,6 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,6 +20,9 @@ class CrimeMapFragmentViewModel(
 
     private val _allCrimes = MutableLiveData<Crimes>()
     val allCrimes: LiveData<Crimes> = _allCrimes
+
+    private val _currentCrimesToDisplay = MutableLiveData<Crimes>()
+    val currentCrimesToDisplay: LiveData<Crimes> = _currentCrimesToDisplay
 
     private val _crimeCategories = MutableLiveData<CrimeCategories>()
     val crimeCategories: LiveData<CrimeCategories> = _crimeCategories
@@ -109,5 +113,31 @@ class CrimeMapFragmentViewModel(
         } else {
             onSelectedChipChangeNewDelete.value = true
         }
+    }
+
+    fun loadListSortedByChipsNames() {
+        val newCrimesList = Crimes()
+        checkedChipsNamesList.value?.forEach { checkedChipsName ->
+            allCrimes.value?.forEach { crimeItem ->
+                Log.d("dd", "${checkedChipsName} - ${crimeItem.category}")
+                if (checkedChipsName == crimeItem.category.replaceFirstChar {
+                        it.uppercase()
+                    }.replace('-', ' ')) {
+                    newCrimesList.add(crimeItem)
+                } else if (checkedChipsName.replace(
+                        '-', ' '
+                    ) == crimeItem.category.replaceFirstChar {
+                        it.uppercase()
+                    }.replace('-', ' ')
+                ) {
+                    newCrimesList.add(crimeItem)
+                } else if (checkedChipsName == "Criminal damage and arson" && crimeItem.category == "criminal-damage-arson"){
+                    newCrimesList.add(crimeItem)
+                }
+            }
+        }
+        _currentCrimesToDisplay.value = newCrimesList
+        Log.d("Size", "${newCrimesList.size}")
+        Log.d("Size", "${_allCrimes.value?.size}")
     }
 }

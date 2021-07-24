@@ -55,8 +55,8 @@ class CrimeDetailsFragment : Fragment(), OnMapReadyCallback {
             args.crimesItem.location.longitude
 
         binding.detailsSheet.detailsScreen.textViewIdContent.text = args.crimesItem.id.toString()
-        binding.detailsSheet.detailsScreen.textViewOutcomeStatusContent.text =
-            args.crimesItem.outcome_status.category
+/*        binding.detailsSheet.detailsScreen.textViewOutcomeStatusContent.text =
+            args.crimesItem.outcome_status.category*/
         binding.detailsSheet.detailsScreen.textViewWhereContent.text =
             args.crimesItem.location.street.name
 

@@ -1,6 +1,8 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper.getMainLooper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,12 +25,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.chip.Chip
 import com.google.maps.android.clustering.ClusterManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import kotlin.math.abs
+import android.util.Log
+import com.google.android.gms.maps.model.CameraPosition
+import kotlinx.coroutines.*
 
 class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
@@ -64,7 +65,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private fun setBottomListForCrimes(crimes: Crimes) {
         binding.bottomSheet.recyclerViewBottomSheet.apply {
             layoutManager = LinearLayoutManager(activity)
-            adapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>)
+            adapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
         }
     }
 
@@ -134,6 +135,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                     binding.chipGroup.checkedChipIds,
                     currentCheckedNames
                 )
+                viewModel.loadListSortedByChipsNames()
             }
         }
     }
@@ -180,7 +182,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                     googleMap.cameraPosition.target.latitude,
                     googleMap.cameraPosition.target.longitude
                 )
-
                 oldPositionLat = googleMap.cameraPosition.target.latitude
                 oldPositionLng = googleMap.cameraPosition.target.longitude
                 oldZoom = googleMap.cameraPosition.zoom
@@ -199,12 +200,33 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         )
 
         clusterManager.setOnClusterItemClickListener {
+
             val crimesItem: CrimesItem = viewModel.getCrimesItemById(it.crimeId) ?: CrimesItem()
             val action =
-                CrimeMapFragmentDirections.actionCrimeMapFragmentToCrimeDetailsFragment(
+                CrimeMapFragmentDirections.actionCrimeMapFragmentToScreenDetailsFragment(
                     crimesItem
                 )
-            view?.findNavController()?.navigate(action)
+            val offsetLatSub = 0.00005443289f
+            val offsetLongSub = 0.00000268221f
+            val latLng = LatLng(crimesItem.location.latitude.toDouble() - offsetLatSub, crimesItem.location.longitude.toDouble() - offsetLongSub)
+
+            val cameraPosition = CameraPosition.Builder()
+                .target(latLng).zoom(22.0f).build()
+
+            googleMap.uiSettings.isScrollGesturesEnabled = false
+            googleMap.animateCamera(
+                CameraUpdateFactory.newCameraPosition(cameraPosition),
+                object : GoogleMap.CancelableCallback {
+                    override fun onFinish() {
+                        googleMap.uiSettings.isScrollGesturesEnabled = true
+                        view?.findNavController()?.navigate(action)
+                    }
+
+                    override fun onCancel() {
+                        googleMap.uiSettings.setAllGesturesEnabled(true)
+                    }
+                })
+
             true
         }
     }

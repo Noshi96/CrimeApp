@@ -48,6 +48,7 @@ dependencies {
     implementation projectDependencies.constraintlayout
     implementation projectDependencies.coroutines_core
     implementation projectDependencies.coroutines_android
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt projectDependencies.databinding
     implementation projectDependencies.google_material
     implementation projectDependencies.google_services_maps

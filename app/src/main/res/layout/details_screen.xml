@@ -5,9 +5,28 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:background="@drawable/bottom_sheet_white_rounded">
+        android:id="@+id/bottomSheetDetails2"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/bottom_sheet_white_rounded"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"
+        android:layout_height="400dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_start_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.4" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_end_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.6" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_10"
@@ -22,6 +41,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.95"/>
+
+        <View
+            android:id="@+id/view_up_bottom_bar"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="2dp"
+            android:background="@drawable/grey_bar_view_rounded"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end_detail"
+            app:layout_constraintStart_toStartOf="@id/guideline_start_detail"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/place_icon"
@@ -67,7 +95,7 @@
             app:layout_constraintTop_toBottomOf="@+id/text_view_latitude" />
 
         <include
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_width="match_parent"
             android:id="@+id/crime_row"
             layout="@layout/bottom_sheet_row"

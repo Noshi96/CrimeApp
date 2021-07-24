@@ -41,6 +41,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="screenDetailsFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-216" />
+                            <option name="y" value="-163" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                 </map>
               </option>
             </LayoutPositions>
