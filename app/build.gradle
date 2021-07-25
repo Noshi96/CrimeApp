@@ -51,6 +51,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt projectDependencies.databinding
     implementation projectDependencies.google_material
+    implementation projectDependencies.google_location
     implementation projectDependencies.google_services_maps
     implementation projectDependencies.google_maps_utils
     implementation projectDependencies.gson

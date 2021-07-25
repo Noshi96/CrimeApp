@@ -1,6 +1,8 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel
 
+import android.app.Application
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,8 +13,10 @@ import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.material.chip.Chip
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CrimeMapFragmentViewModel(
     private val crimesInfoService: CrimesInfoService
@@ -62,6 +66,7 @@ class CrimeMapFragmentViewModel(
             crimesInfoService.getAllRecentCrimesFromNetwork(latitude, longitude)
                 .collect {
                     _allCrimes.value = it
+                    loadListFilteredByChipsNames()
                 }
         }
     }
@@ -75,6 +80,7 @@ class CrimeMapFragmentViewModel(
             crimesInfoService.getAllRecentCrimesFromNetwork(latLngBounds, latitude, longitude)
                 .collect {
                     _allCrimes.value = it
+                    loadListFilteredByChipsNames()
                 }
         }
     }
@@ -111,33 +117,74 @@ class CrimeMapFragmentViewModel(
         if (chip.isChecked) {
             onSelectedChipChangeNewAdd.value = true
         } else {
-            onSelectedChipChangeNewDelete.value = true
+            onSelectedChipChangeNewDelete.value = false
         }
     }
 
-    fun loadListSortedByChipsNames() {
+    fun loadListFilteredByChipsNames() {
         val newCrimesList = Crimes()
-        checkedChipsNamesList.value?.forEach { checkedChipsName ->
-            allCrimes.value?.forEach { crimeItem ->
-                Log.d("dd", "${checkedChipsName} - ${crimeItem.category}")
-                if (checkedChipsName == crimeItem.category.replaceFirstChar {
-                        it.uppercase()
-                    }.replace('-', ' ')) {
-                    newCrimesList.add(crimeItem)
-                } else if (checkedChipsName.replace(
-                        '-', ' '
-                    ) == crimeItem.category.replaceFirstChar {
-                        it.uppercase()
-                    }.replace('-', ' ')
-                ) {
-                    newCrimesList.add(crimeItem)
-                } else if (checkedChipsName == "Criminal damage and arson" && crimeItem.category == "criminal-damage-arson"){
-                    newCrimesList.add(crimeItem)
+        viewModelScope.launch {
+            checkedChipsNamesList.value?.forEach { checkedChipsName ->
+                allCrimes.value?.forEach { crimeItem ->
+                    if (checkedChipsName == crimeItem.category.replaceFirstChar {
+                            it.uppercase()
+                        }.replace('-', ' ')) {
+                        newCrimesList.add(crimeItem)
+                    } else if (checkedChipsName.replace(
+                            '-', ' '
+                        ) == crimeItem.category.replaceFirstChar {
+                            it.uppercase()
+                        }.replace('-', ' ')
+                    ) {
+                        newCrimesList.add(crimeItem)
+                    } else if (checkedChipsName == "Criminal damage and arson" && crimeItem.category == "criminal-damage-arson") {
+                        newCrimesList.add(crimeItem)
+                    } else if (checkedChipsName == "Violence and sexual offences" && crimeItem.category == "violent-crime") {
+                        newCrimesList.add(crimeItem)
+                    }
+                }
+            }
+            withContext(Dispatchers.Main) {
+                if (_currentCrimesToDisplay.value?.size == 0 || newCrimesList.size == 0){
+                    _currentCrimesToDisplay.value = _allCrimes.value
+                } else {
+                    _currentCrimesToDisplay.value = newCrimesList
                 }
             }
         }
-        _currentCrimesToDisplay.value = newCrimesList
-        Log.d("Size", "${newCrimesList.size}")
-        Log.d("Size", "${_allCrimes.value?.size}")
     }
+
+    fun getCurrentLocation(){
+
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,11 +1,14 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
+import android.annotation.SuppressLint
+import android.app.Dialog
+import android.location.Location
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper.getMainLooper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -17,19 +20,26 @@ import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItemMarker
 import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.clustering.ClusterManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import kotlin.math.abs
-import android.util.Log
-import com.google.android.gms.maps.model.CameraPosition
-import kotlinx.coroutines.*
 
 class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
@@ -39,6 +49,11 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var googleMap: GoogleMap
     private lateinit var clusterManager: ClusterManager<CrimesItemMarker>
+
+    private var mFusedLocationClient: FusedLocationProviderClient? = null
+    private var mLastLocation: Location? = null
+
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,15 +66,49 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             setMarkersForCrimes(it)
             setBottomListForCrimes(it)
         }
+        viewModel.currentCrimesToDisplay.observe(viewLifecycleOwner) {
+            setMarkersForCrimes(it)
+            setBottomListForCrimes(it)
+        }
 
         viewModel.chipCategories.observe(viewLifecycleOwner) {
             setChipsForChipCategories(it, container)
         }
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+
         loadViewModelData()
         loadGoogleMaps()
 
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet)
+
+        binding.fab.setOnClickListener {
+/*            Snackbar.make(binding.bottomSheet.bottomSheet, "No data available", Snackbar.LENGTH_SHORT).apply {
+                anchorView = binding.bottomSheet.bottomSheet
+            }.show()*/
+            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            else
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
         return binding.root
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        mFusedLocationClient!!.lastLocation
+            .addOnCompleteListener(requireActivity()) { task ->
+                if (task.isSuccessful && task.result != null) {
+                    mLastLocation = task.result
+
+                }
+            }
+        mFusedLocationClient!!.lastLocation.addOnSuccessListener {
+            mLastLocation = it
+            Log.d("${(mLastLocation)!!.latitude}", "${(mLastLocation)!!.longitude}")
+        }
     }
 
     private fun setBottomListForCrimes(crimes: Crimes) {
@@ -81,8 +130,8 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                     clusterManager.addItem(
                         CrimesItemMarker(
                             crime.id,
-                            crime.location.latitude.toDouble(),
-                            crime.location.longitude.toDouble(),
+                            crime.location.latitude.toDouble(), //+ Random.nextDouble(0.00002443289, until = 0.00003543289),
+                            crime.location.longitude.toDouble(), //+ Random.nextDouble(0.00000268221, until = 0.00000378221),
                             icon,
                             crime.category,
                             crime.location.street.name
@@ -135,7 +184,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                     binding.chipGroup.checkedChipIds,
                     currentCheckedNames
                 )
-                viewModel.loadListSortedByChipsNames()
+                viewModel.loadListFilteredByChipsNames()
             }
         }
     }
@@ -208,7 +257,10 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                 )
             val offsetLatSub = 0.00005443289f
             val offsetLongSub = 0.00000268221f
-            val latLng = LatLng(crimesItem.location.latitude.toDouble() - offsetLatSub, crimesItem.location.longitude.toDouble() - offsetLongSub)
+            val latLng = LatLng(
+                crimesItem.location.latitude.toDouble() - offsetLatSub,
+                crimesItem.location.longitude.toDouble() - offsetLongSub
+            )
 
             val cameraPosition = CameraPosition.Builder()
                 .target(latLng).zoom(22.0f).build()
