@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 
 private const val LOCAL_AREA_ADDITIONAL_OFFSET = 0.006
+private const val OFFLINE_LAST_UPDATED = "2021-05"
 
 class CrimesInfoService(
     private val crimeCategoriesRepository: CrimeCategoriesRepositoryAPI,
@@ -18,12 +19,25 @@ class CrimesInfoService(
     private val crimesRepository: CrimesRepository
 ) {
 
-    fun getLastUpdated(): Flow<LastUpdated> = lastUpdatedRepository.getLastUpdated()
-    fun getCrimeCategories(date: String): Flow<CrimeCategories> =
+    fun getLastUpdated(): Flow<LastUpdated> = try {
+        lastUpdatedRepository.getLastUpdated()
+    } catch (exception: Exception) {
+        flowOf(LastUpdated(OFFLINE_LAST_UPDATED))
+    }
+
+
+    fun getCrimeCategories(date: String): Flow<CrimeCategories> = try {
         crimeCategoriesRepository.getCrimeCategories(date)
+    } catch (exception: Exception) {
+        flowOf(CrimeCategories())
+    }
 
     fun getAllCrimesFromNetwork(latitude: Double, longitude: Double, date: String): Flow<Crimes> =
-        crimesRepository.getAllCrimes(latitude, longitude, date)
+        try {
+            crimesRepository.getAllCrimes(latitude, longitude, date)
+        } catch (exception: Exception) {
+            flowOf(Crimes())
+        }
 
     fun getAllCrimesFromNetwork(
         latLngBounds: LatLngBounds,
@@ -44,7 +58,11 @@ class CrimesInfoService(
             .append(",")
             .append(longitude)
 
-        emitAll(crimesRepository.getAllCrimes(poly.toString(), date))
+        try {
+            emitAll(crimesRepository.getAllCrimes(poly.toString(), date))
+        } catch (exception: Exception) {
+            emitAll(flowOf(Crimes()))
+        }
     }.flowOn(Dispatchers.IO)
 
     fun getRecentCrimeCategories(): Flow<CrimeCategories> = flow {
