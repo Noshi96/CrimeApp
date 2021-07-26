@@ -1,19 +1,14 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.fragment.navArgs
-import com.globallogic.knowyourcrime.R
-import com.globallogic.knowyourcrime.databinding.DetailsFragmentBinding
 import com.globallogic.knowyourcrime.databinding.FragmentScreenDetailsBinding
-import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.koin.android.ext.android.inject
 
 class ScreenDetailsFragment : BottomSheetDialogFragment() {
 
@@ -26,7 +21,7 @@ class ScreenDetailsFragment : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentScreenDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }

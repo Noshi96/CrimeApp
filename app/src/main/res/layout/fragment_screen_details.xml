@@ -12,10 +12,10 @@
             android:id="@+id/bottomSheetDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="16dp"
+            android:paddingHorizontal="@dimen/padding_horizontal_16"
+            android:paddingBottom="@dimen/padding_bottom_16"
             app:behavior_hideable="true"
-            app:behavior_peekHeight="0dp"
-            android:paddingHorizontal="16dp"
+            app:behavior_peekHeight="@dimen/dp_0"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <androidx.constraintlayout.widget.Guideline
@@ -49,8 +49,8 @@
             <View
                 android:id="@+id/view_up_bottom_bar"
                 android:layout_width="@dimen/dp_0"
-                android:layout_height="2dp"
-                android:layout_marginTop="4dp"
+                android:layout_height="@dimen/layout_height_2"
+                android:layout_marginTop="@dimen/margin_top_4"
                 android:background="@drawable/grey_bar_view_rounded"
                 app:layout_constraintEnd_toEndOf="@id/guideline_end_detail"
                 app:layout_constraintStart_toStartOf="@id/guideline_start_detail"
@@ -58,10 +58,10 @@
 
             <ImageView
                 android:id="@+id/place_icon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/place_icon_width"
+                android:layout_height="@dimen/place_icon_height"
                 android:layout_marginTop="16dp"
-                android:contentDescription="desc"
+                android:contentDescription="@string/place_icon_desc"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_place_24" />
@@ -70,10 +70,10 @@
                 android:id="@+id/text_view_latitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:text="52.629729"
+                android:layout_marginStart="@dimen/margin_start_24"
+                android:text="@string/sample_text"
                 android:textAlignment="center"
-                android:textSize="24sp"
+                android:textSize="@dimen/text_size_24"
                 app:layout_constraintBottom_toBottomOf="@+id/place_icon"
                 app:layout_constraintStart_toEndOf="@+id/place_icon"
                 app:layout_constraintTop_toTopOf="@+id/place_icon" />
@@ -82,10 +82,10 @@
                 android:id="@+id/text_view_longitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:text="-1.126371"
+                android:layout_marginStart="@dimen/margin_start_24"
+                android:text="@string/sample_text"
                 android:textAlignment="center"
-                android:textSize="24sp"
+                android:textSize="@dimen/text_size_24"
                 app:layout_constraintBottom_toBottomOf="@+id/text_view_latitude"
                 app:layout_constraintStart_toEndOf="@+id/text_view_latitude"
                 app:layout_constraintTop_toTopOf="@+id/text_view_latitude" />
@@ -93,9 +93,9 @@
             <View
                 android:id="@+id/view_separator_details_one"
                 android:layout_width="@dimen/dp_0"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="#71808080"
+                android:layout_height="@dimen/layout_height_1"
+                android:layout_marginTop="@dimen/margin_top_16"
+                android:background="@color/light_gray_2"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_90"
                 app:layout_constraintStart_toStartOf="@+id/guideline_10"
                 app:layout_constraintTop_toBottomOf="@+id/text_view_latitude" />
@@ -111,8 +111,8 @@
             <View
                 android:id="@+id/view_separator_details_two"
                 android:layout_width="@dimen/dp_0"
-                android:layout_height="1dp"
-                android:background="#71808080"
+                android:layout_height="@dimen/layout_height_1"
+                android:background="@color/light_gray_2"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_90"
                 app:layout_constraintStart_toStartOf="@+id/guideline_10"
                 app:layout_constraintTop_toBottomOf="@+id/crime_row" />
@@ -122,9 +122,9 @@
                 style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:text="Where"
+                android:layout_marginStart="@dimen/margin_start_16"
+                android:layout_marginTop="@dimen/margin_top_16"
+                android:text="@string/where"
                 android:textAlignment="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view_separator_details_two" />
@@ -134,8 +134,8 @@
                 style="@style/TextAppearance.MdcTypographyStyles.Body2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="On or near Festival Way"
+                android:layout_marginStart="@dimen/margin_start_16"
+                android:text="@string/sample_text"
                 android:textAlignment="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/text_view_where" />
@@ -143,9 +143,9 @@
             <View
                 android:id="@+id/view_separator_details_three"
                 android:layout_width="@dimen/dp_0"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="#71808080"
+                android:layout_height="@dimen/layout_height_1"
+                android:layout_marginTop="@dimen/margin_top_16"
+                android:background="@color/light_gray_2"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_90"
                 app:layout_constraintStart_toStartOf="@+id/guideline_10"
                 app:layout_constraintTop_toBottomOf="@+id/text_view_where_content" />
@@ -155,9 +155,9 @@
                 style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:text="Outcome status"
+                android:layout_marginStart="@dimen/margin_start_16"
+                android:layout_marginTop="@dimen/margin_top_16"
+                android:text="@string/outcome_status"
                 android:textAlignment="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view_separator_details_three" />
@@ -167,8 +167,8 @@
                 style="@style/TextAppearance.MdcTypographyStyles.Body2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Unable to prosecute suspect"
+                android:layout_marginStart="@dimen/margin_start_16"
+                android:text="@string/sample_text"
                 android:textAlignment="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/text_view_outcome_status" />
@@ -176,9 +176,9 @@
             <View
                 android:id="@+id/view_separator_details_four"
                 android:layout_width="@dimen/dp_0"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="#71808080"
+                android:layout_height="@dimen/layout_height_1"
+                android:layout_marginTop="@dimen/margin_top_16"
+                android:background="@color/light_gray_2"
                 app:layout_constraintEnd_toStartOf="@+id/guideline_90"
                 app:layout_constraintStart_toStartOf="@+id/guideline_10"
                 app:layout_constraintTop_toBottomOf="@+id/text_view_outcome_status_content" />
@@ -188,9 +188,9 @@
                 style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:text="Id"
+                android:layout_marginStart="@dimen/margin_start_16"
+                android:layout_marginTop="@dimen/margin_top_16"
+                android:text="@string/id"
                 android:textAlignment="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view_separator_details_four" />
@@ -200,8 +200,8 @@
                 style="@style/TextAppearance.MdcTypographyStyles.Body2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="80229982"
+                android:layout_marginStart="@dimen/margin_start_16"
+                android:text="@string/sample_text"
                 android:textAlignment="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/text_view_id" />

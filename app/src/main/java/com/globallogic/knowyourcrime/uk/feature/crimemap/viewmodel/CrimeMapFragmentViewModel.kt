@@ -1,5 +1,6 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,7 +11,6 @@ import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -35,6 +35,11 @@ class CrimeMapFragmentViewModel(
 
     private val _checkedChipsNamesList = MutableLiveData<List<String>>()
     var checkedChipsNamesList: LiveData<List<String>> = _checkedChipsNamesList
+
+    private val _dateFilteredBy = MutableLiveData<String>()
+    var dateFilteredBy: LiveData<String> = _dateFilteredBy
+
+    var resetView: Boolean = false
 
     fun setCurrentCameraPosition(latLngBounds: LatLngBounds, latitude: Double, longitude: Double) {
         _currentCameraPosition.value = CameraPosition(
@@ -62,28 +67,57 @@ class CrimeMapFragmentViewModel(
         categories?.let {
             viewModelScope.launch {
                 currentCameraPosition.value?.let { camera ->
-                    crimesInfoService.getRecentCrimesWithCategoriesFromNetwork(
-                        categories,
-                        camera.latLngBounds,
-                        camera.latitude,
-                        camera.longitude
-                    )
-                        .collect { crime ->
-                            _allCrimes.value = crime
-                        }
+                    if (_dateFilteredBy.value.isNullOrEmpty())
+                        crimesInfoService.getRecentCrimesWithCategoriesFromNetwork(
+                            categories,
+                            camera.latLngBounds,
+                            camera.latitude,
+                            camera.longitude
+                        )
+                            .collect { crime ->
+                                _allCrimes.value = crime
+                            }
+                    else {
+                        crimesInfoService.getCrimesWithCategoriesFromNetworkBasesOnNewDate(
+                            categories,
+                            camera.latLngBounds,
+                            camera.latitude,
+                            camera.longitude,
+                            _dateFilteredBy.value!!
+                        )
+                            .collect { crime ->
+                                _allCrimes.value = crime
+                            }
+                    }
+
                 }
             }
         } ?: run {
             viewModelScope.launch {
                 currentCameraPosition.value?.let { camera ->
-                    crimesInfoService.getAllRecentCrimesFromNetwork(
-                        camera.latLngBounds,
-                        camera.latitude,
-                        camera.longitude
-                    )
-                        .collect { crime ->
-                            _allCrimes.value = crime
-                        }
+                    if (_dateFilteredBy.value.isNullOrEmpty()) {
+                        crimesInfoService.getAllRecentCrimesFromNetwork(
+                            camera.latLngBounds,
+                            camera.latitude,
+                            camera.longitude
+                        )
+                            .collect { crime ->
+                                _allCrimes.value = crime
+                            }
+
+                    } else {
+                        crimesInfoService.getAllCrimesFromNetworkBasedOnDate(
+                            camera.latLngBounds,
+                            camera.latitude,
+                            camera.longitude,
+                            _dateFilteredBy.value!!
+                        )
+                            .collect { crime ->
+                                _allCrimes.value = crime
+                            }
+                    }
+
+
                 }
             }
         }
@@ -109,11 +143,11 @@ class CrimeMapFragmentViewModel(
 
 
     fun onSelectedChipChangesSendToViewModel(
-        chip: Chip,
         checkedChipIds: List<Int>,
         currentCheckedNames: MutableList<String>
     ) {
-
+        _checkedChipsNamesList.value = mutableListOf()
+        Log.d("ddd", "${_checkedChipsNamesList.value}")
         _checkedChipsIdsList.value = checkedChipIds
         _checkedChipsNamesList.value = currentCheckedNames
     }
@@ -128,7 +162,15 @@ class CrimeMapFragmentViewModel(
         } else {
             _allCrimes.value?.sortBy { it.category }
         }
+    }
 
+    fun setDataFilteredBy(data: String) {
+        _dateFilteredBy.value = data
+    }
+
+    fun clearCheckedChipsNamesList() {
+        val newList = mutableListOf<String>()
+        _checkedChipsNamesList.value = newList
     }
 
 }

@@ -11,6 +11,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.globallogic.knowyourcrime.R
 import com.globallogic.knowyourcrime.databinding.CrimeMapBinding
@@ -31,16 +32,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
 import com.google.maps.android.clustering.ClusterManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.koin.android.ext.android.inject
+import kotlinx.coroutines.*
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 import kotlin.math.abs
 
 class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
-    private val viewModel: CrimeMapFragmentViewModel by inject()
+    private val viewModel by sharedViewModel<CrimeMapFragmentViewModel>()
     private lateinit var _binding: CrimeMapBinding
     private val binding get() = _binding
 
@@ -92,6 +90,12 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             binding.bottomSheet.recyclerViewBottomSheet.smoothScrollToPosition(0)
         }
 
+        binding.fabSettings.setOnClickListener {
+            val action =
+                CrimeMapFragmentDirections.actionCrimeMapFragmentToSettingsScreenFragment()
+            viewModel.clearCheckedChipsNamesList()
+            findNavController().navigate(action)
+        }
         return binding.root
     }
 
@@ -111,10 +115,14 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setBottomListForCrimes(crimes: Crimes) {
-        binding.bottomSheet.recyclerViewBottomSheet.apply {
-            layoutManager = LinearLayoutManager(activity)
-            bottomSheetAdapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
-            adapter = bottomSheetAdapter
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) {
+                binding.bottomSheet.recyclerViewBottomSheet.apply {
+                    layoutManager = LinearLayoutManager(activity)
+                    bottomSheetAdapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
+                    adapter = bottomSheetAdapter
+                }
+            }
         }
     }
 
@@ -150,7 +158,10 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         container: ViewGroup?
     ) {
         val chipsList = mutableListOf<Chip>()
-        addChipsToViewAndLoadChipsList(chipCategories, container, chipsList)
+        //if (!viewModel.callFuncOnce) {
+            addChipsToViewAndLoadChipsList(chipCategories, container, chipsList)
+            //viewModel.callFuncOnce = true
+        //}
         setChipsListenerAndUpdateViewModel(chipsList)
     }
 
@@ -159,6 +170,12 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         chipsList: MutableList<Chip>
     ) {
+        var chipId = 0
+
+        if (viewModel.resetView){
+            binding.chipGroup.removeAllViews()
+        }
+
         categoryList.forEach { categoryName ->
             val chip = layoutInflater.inflate(R.layout.chip_item, container, false) as Chip
             chip.text = categoryName
@@ -169,7 +186,9 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             chip.id = View.generateViewId()
             chipsList.add(chip)
             binding.chipGroup.addView(chip)
+            chipId++
         }
+
     }
 
     private fun setChipsListenerAndUpdateViewModel(chipsList: MutableList<Chip>) {
@@ -180,7 +199,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                     currentCheckedNames.add(binding.chipGroup.findViewById<Chip>(chipId).text.toString())
                 }
                 viewModel.onSelectedChipChangesSendToViewModel(
-                    chip,
                     binding.chipGroup.checkedChipIds,
                     currentCheckedNames
                 )

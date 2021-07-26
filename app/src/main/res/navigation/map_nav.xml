@@ -10,23 +10,11 @@
         android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.CrimeMapFragment"
         android:label="CrimeMapFragment">
         <action
-            android:id="@+id/action_crimeMapFragment_to_crimeDetailsFragment"
-            app:destination="@id/crimeDetailsFragment">
-            <argument
-                android:name="crimesItem"
-                app:argType="com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem" />
-        </action>
-        <action
             android:id="@+id/action_crimeMapFragment_to_screenDetailsFragment"
             app:destination="@id/screenDetailsFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/crimeDetailsFragment"
-        android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.CrimeDetailsFragment"
-        android:label="CrimeDetailsFragment">
-        <argument
-            android:name="crimesItem"
-            app:argType="com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem" />
+        <action
+            android:id="@+id/action_crimeMapFragment_to_settingsScreenFragment"
+            app:destination="@id/settingsScreenFragment" />
     </fragment>
     <dialog
         android:id="@+id/screenDetailsFragment"
@@ -37,4 +25,12 @@
             android:name="crimeDetails"
             app:argType="com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem" />
     </dialog>
+    <fragment
+        android:id="@+id/settingsScreenFragment"
+        android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.SettingsScreenFragment"
+        android:label="SettingsScreenFragment" >
+        <action
+            android:id="@+id/action_settingsScreenFragment_to_crimeMapFragment"
+            app:destination="@id/crimeMapFragment" />
+    </fragment>
 </navigation>
