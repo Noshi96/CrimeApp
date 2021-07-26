@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map_nav"
+    app:startDestination="@id/crimeMapFragment">
+
+    <fragment
+        android:id="@+id/crimeMapFragment"
+        android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.CrimeMapFragment"
+        android:label="CrimeMapFragment">
+        <action
+            android:id="@+id/action_crimeMapFragment_to_crimeDetailsFragment"
+            app:destination="@id/crimeDetailsFragment">
+            <argument
+                android:name="crimesItem"
+                app:argType="com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem" />
+        </action>
+        <action
+            android:id="@+id/action_crimeMapFragment_to_screenDetailsFragment"
+            app:destination="@id/screenDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/crimeDetailsFragment"
+        android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.CrimeDetailsFragment"
+        android:label="CrimeDetailsFragment">
+        <argument
+            android:name="crimesItem"
+            app:argType="com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem" />
+    </fragment>
+    <dialog
+        android:id="@+id/screenDetailsFragment"
+        android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.ScreenDetailsFragment"
+        android:label="fragment_screen_details"
+        tools:layout="@layout/fragment_screen_details" >
+        <argument
+            android:name="crimeDetails"
+            app:argType="com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem" />
+    </dialog>
+</navigation>

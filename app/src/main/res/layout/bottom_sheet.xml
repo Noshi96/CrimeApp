@@ -48,7 +48,7 @@
         android:id="@+id/view_up_bottom_bar"
         android:layout_width="@dimen/dp_0"
         android:layout_height="5dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="2dp"
         android:background="@drawable/grey_bar_view_rounded"
         app:layout_constraintEnd_toEndOf="@id/guideline_end"
         app:layout_constraintStart_toStartOf="@id/guideline_start"
@@ -74,75 +74,39 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/sort_alphabetically"
                 android:checkable="true"
                 android:checked="false"
                 android:elevation="@dimen/elevation_chips"
-                android:text="sample"
+                android:text="Sort alphabetically"
                 android:textColor="@color/black"
                 app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+                app:chipIcon="@drawable/ic_baseline_sort_by_alpha_24"
                 app:chipIconVisible="true" />
 
             <com.google.android.material.chip.Chip
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/sort_by_distance"
                 android:checkable="true"
                 android:checked="false"
                 android:elevation="@dimen/elevation_chips"
-                android:text="sample"
+                android:text="Sort by distance"
                 android:textColor="@color/black"
                 app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+                app:chipIcon="@drawable/ic_baseline_sort_24"
                 app:chipIconVisible="true" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:checked="false"
-                android:elevation="@dimen/elevation_chips"
-                android:text="sample"
-                android:textColor="@color/black"
-                app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
-                app:chipIconVisible="true" />
-
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:checked="false"
-                android:elevation="@dimen/elevation_chips"
-                android:text="sample"
-                android:textColor="@color/black"
-                app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
-                app:chipIconVisible="true" />
-
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:checked="false"
-                android:elevation="@dimen/elevation_chips"
-                android:text="sample"
-                android:textColor="@color/black"
-                app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
-                app:chipIconVisible="true" />
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
     <View
-        android:id="@+id/view_separator"
+        android:id="@+id/view_separator_bottom_sheet"
         android:layout_width="@dimen/dp_0"
         android:layout_height="1dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:background="#41999999"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline_90p"
@@ -154,10 +118,9 @@
         android:id="@+id/recycler_view_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_0"
-        android:layout_marginTop="10dp"
-        android:paddingHorizontal="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_separator" />
+        app:layout_constraintTop_toBottomOf="@+id/view_separator_bottom_sheet" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

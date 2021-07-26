@@ -5,8 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.globallogic.knowyourcrime.uk.api.CrimesInfoService
+import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CameraPosition
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
+import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -18,17 +21,14 @@ class CrimeMapFragmentViewModel(
     private val _allCrimes = MutableLiveData<Crimes>()
     val allCrimes: LiveData<Crimes> = _allCrimes
 
+    private val _currentCameraPosition = MutableLiveData<CameraPosition>()
+    val currentCameraPosition: LiveData<CameraPosition> = _currentCameraPosition
+
     private val _crimeCategories = MutableLiveData<CrimeCategories>()
     val crimeCategories: LiveData<CrimeCategories> = _crimeCategories
 
     private val _chipCategories = MutableLiveData<MutableList<String>>()
     val chipCategories: LiveData<MutableList<String>> = _chipCategories
-
-    private val _currentCheckedChipName = MutableLiveData<String>()
-    var currentCheckedChipName: LiveData<String> = _currentCheckedChipName
-
-    private val _currentCheckedChipId = MutableLiveData<Int>()
-    var currentCheckedChipId: LiveData<Int> = _currentCheckedChipId
 
     private val _checkedChipsIdsList = MutableLiveData<List<Int>>()
     var checkedChipsIdsList: LiveData<List<Int>> = _checkedChipsIdsList
@@ -36,8 +36,13 @@ class CrimeMapFragmentViewModel(
     private val _checkedChipsNamesList = MutableLiveData<List<String>>()
     var checkedChipsNamesList: LiveData<List<String>> = _checkedChipsNamesList
 
-    var onSelectedChipChangeNewAdd = MutableLiveData<Boolean?>()
-    var onSelectedChipChangeNewDelete = MutableLiveData<Boolean?>()
+    fun setCurrentCameraPosition(latLngBounds: LatLngBounds, latitude: Double, longitude: Double) {
+        _currentCameraPosition.value = CameraPosition(
+            latLngBounds,
+            latitude,
+            longitude
+        )
+    }
 
     fun loadCrimeCategories() {
         viewModelScope.launch {
@@ -48,16 +53,41 @@ class CrimeMapFragmentViewModel(
         }
     }
 
-    fun loadAllCrimes(
-        latitude: Double,
-        longitude: Double
-    ) {
-        viewModelScope.launch {
-            crimesInfoService.getAllRecentCrimesFromNetwork(latitude, longitude)
-                .collect {
-                    _allCrimes.value = it
-                }
+    fun loadAllCrimes() {
+        var categories = _checkedChipsNamesList.value
+        if (categories?.isEmpty() == true) {
+            categories = null
         }
+
+        categories?.let {
+            viewModelScope.launch {
+                currentCameraPosition.value?.let { camera ->
+                    crimesInfoService.getRecentCrimesWithCategoriesFromNetwork(
+                        categories,
+                        camera.latLngBounds,
+                        camera.latitude,
+                        camera.longitude
+                    )
+                        .collect { crime ->
+                            _allCrimes.value = crime
+                        }
+                }
+            }
+        } ?: run {
+            viewModelScope.launch {
+                currentCameraPosition.value?.let { camera ->
+                    crimesInfoService.getAllRecentCrimesFromNetwork(
+                        camera.latLngBounds,
+                        camera.latitude,
+                        camera.longitude
+                    )
+                        .collect { crime ->
+                            _allCrimes.value = crime
+                        }
+                }
+            }
+        }
+
     }
 
     fun loadChipCategories() {
@@ -72,6 +102,12 @@ class CrimeMapFragmentViewModel(
         }
     }
 
+    fun getCrimesItemById(id: Int): CrimesItem? =
+        _allCrimes.value?.find {
+            it.id == id
+        }
+
+
     fun onSelectedChipChangesSendToViewModel(
         chip: Chip,
         checkedChipIds: List<Int>,
@@ -80,13 +116,48 @@ class CrimeMapFragmentViewModel(
 
         _checkedChipsIdsList.value = checkedChipIds
         _checkedChipsNamesList.value = currentCheckedNames
-        _currentCheckedChipName.value = chip.text.toString()
-        _currentCheckedChipId.value = chip.id
-
-        if (chip.isChecked) {
-            onSelectedChipChangeNewAdd.value = true
-        } else {
-            onSelectedChipChangeNewDelete.value = true
-        }
     }
+
+    fun getCurrentLocation() {
+
+    }
+
+    fun sortListAlphabetically(isChecked: Boolean) {
+        if (isChecked) {
+            _allCrimes.value?.sortByDescending { it.category }
+        } else {
+            _allCrimes.value?.sortBy { it.category }
+        }
+
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
