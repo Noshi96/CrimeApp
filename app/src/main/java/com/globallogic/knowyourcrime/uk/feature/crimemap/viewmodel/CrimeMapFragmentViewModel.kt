@@ -158,6 +158,15 @@ class CrimeMapFragmentViewModel(
 
     }
 
+    fun sortListAlphabetically(isChecked: Boolean){
+        if(isChecked){
+            _currentCrimesToDisplay.value?.sortByDescending { it.category }
+        } else {
+            _currentCrimesToDisplay.value?.sortBy { it.category }
+        }
+
+    }
+
 }
 
 
