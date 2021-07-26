@@ -108,7 +108,7 @@ class CrimesInfoService(
             }
             emit(foundCrimes)
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     private fun cutDate(date: String): String = date.substring(0, 7)
 }

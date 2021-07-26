@@ -1,7 +1,6 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -29,10 +28,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
-import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -133,8 +130,8 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                     clusterManager.addItem(
                         CrimesItemMarker(
                             crime.id,
-                            crime.location.latitude.toDouble(), //+ Random.nextDouble(0.00002443289, until = 0.00003543289),
-                            crime.location.longitude.toDouble(), //+ Random.nextDouble(0.00000268221, until = 0.00000378221),
+                            crime.location.latitude.toDouble(),
+                            crime.location.longitude.toDouble(),
                             icon,
                             crime.category,
                             crime.location.street.name

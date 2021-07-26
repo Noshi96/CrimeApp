@@ -122,11 +122,11 @@ class CrimeMapFragmentViewModel(
 
     }
 
-    fun sortListAlphabetically(isChecked: Boolean){
-        if(isChecked){
-            _currentCrimesToDisplay.value?.sortByDescending { it.category }
+    fun sortListAlphabetically(isChecked: Boolean) {
+        if (isChecked) {
+            _allCrimes.value?.sortByDescending { it.category }
         } else {
-            _currentCrimesToDisplay.value?.sortBy { it.category }
+            _allCrimes.value?.sortBy { it.category }
         }
 
     }
