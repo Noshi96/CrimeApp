@@ -74,67 +74,30 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/MyChip"
+                android:id="@+id/sort_alphabetically"
                 android:checkable="true"
                 android:checked="false"
                 android:elevation="@dimen/elevation_chips"
-                android:text="sample"
+                android:text="Sort alphabetically"
                 android:textColor="@color/black"
                 app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+                app:chipIcon="@drawable/ic_baseline_sort_by_alpha_24"
                 app:chipIconVisible="true" />
 
             <com.google.android.material.chip.Chip
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/sort_by_distance"
                 android:checkable="true"
                 android:checked="false"
                 android:elevation="@dimen/elevation_chips"
-                android:text="sample"
+                android:text="Sort by distance"
                 android:textColor="@color/black"
                 app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
+                app:chipIcon="@drawable/ic_baseline_sort_24"
                 app:chipIconVisible="true" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:checked="false"
-                android:elevation="@dimen/elevation_chips"
-                android:text="sample"
-                android:textColor="@color/black"
-                app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
-                app:chipIconVisible="true" />
-
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:checked="false"
-                android:elevation="@dimen/elevation_chips"
-                android:text="sample"
-                android:textColor="@color/black"
-                app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
-                app:chipIconVisible="true" />
-
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:checked="false"
-                android:elevation="@dimen/elevation_chips"
-                android:text="sample"
-                android:textColor="@color/black"
-                app:chipBackgroundColor="@color/chip_bg_states"
-                app:chipIcon="@drawable/ic_baseline_sports_baseball_24"
-                app:chipIconVisible="true" />
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>

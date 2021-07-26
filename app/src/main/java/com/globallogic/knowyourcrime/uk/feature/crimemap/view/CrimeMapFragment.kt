@@ -1,6 +1,7 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -28,8 +29,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +53,8 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private var mFusedLocationClient: FusedLocationProviderClient? = null
     private var mLastLocation: Location? = null
 
+    private lateinit var bottomSheetAdapter: BottomSheetAdapter
+
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
 
     override fun onCreateView(
@@ -63,10 +68,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             setMarkersForCrimes(it)
             setBottomListForCrimes(it)
         }
-//        viewModel.currentCrimesToDisplay.observe(viewLifecycleOwner) {
-//            setMarkersForCrimes(it)
-//            setBottomListForCrimes(it)
-//        }
 
         viewModel.chipCategories.observe(viewLifecycleOwner) {
             setChipsForChipCategories(it, container)
@@ -81,13 +82,17 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet)
 
         binding.fab.setOnClickListener {
-/*            Snackbar.make(binding.bottomSheet.bottomSheet, "No data available", Snackbar.LENGTH_SHORT).apply {
-                anchorView = binding.bottomSheet.bottomSheet
-            }.show()*/
             if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             else
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        binding.bottomSheet.sortAlphabetically.setOnClickListener {
+            viewModel.sortListAlphabetically(binding.bottomSheet.sortAlphabetically.isChecked)
+
+            bottomSheetAdapter.notifyDataSetChanged()
+            binding.bottomSheet.recyclerViewBottomSheet.smoothScrollToPosition(0)
         }
 
         return binding.root
@@ -111,7 +116,8 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private fun setBottomListForCrimes(crimes: Crimes) {
         binding.bottomSheet.recyclerViewBottomSheet.apply {
             layoutManager = LinearLayoutManager(activity)
-            adapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
+            bottomSheetAdapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
+            adapter = bottomSheetAdapter
         }
     }
 

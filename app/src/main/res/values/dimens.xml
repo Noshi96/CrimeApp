@@ -7,4 +7,6 @@
     <dimen name="elevation_value">15dp</dimen>
     <dimen name="horizontal_scroll_view_margin_top">8dp</dimen>
     <dimen name="elevation_chips">5dp</dimen>
+    <dimen name="edit_text_margin_top">16dp</dimen>
+    <dimen name="margin_start_16">16dp</dimen>
 </resources>
