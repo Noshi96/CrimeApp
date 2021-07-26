@@ -69,5 +69,28 @@ class CrimesInfoService(
         }
     }.flowOn(Dispatchers.IO)
 
+    fun getRecentCrimesWithCategoriesFromNetwork(
+        categories: List<String>,
+        latLngBounds: LatLngBounds,
+        latitude: Double,
+        longitude: Double
+    ): Flow<Crimes> = flow {
+
+        val newCategories = categories.toMutableList()
+        repeat(newCategories.size) { i ->
+            newCategories[i] = categories[i].lowercase().replace(" ", "-")
+        }
+
+        getAllRecentCrimesFromNetwork(latLngBounds, latitude, longitude).collect {
+            val foundCrimes = Crimes()
+            it.forEach { crime ->
+                if (newCategories.contains(crime.category)) {
+                    foundCrimes.add(crime)
+                }
+            }
+            emit(foundCrimes)
+        }
+    }
+
     private fun cutDate(date: String): String = date.substring(0, 7)
 }

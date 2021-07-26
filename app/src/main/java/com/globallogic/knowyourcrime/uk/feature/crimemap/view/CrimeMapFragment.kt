@@ -1,7 +1,6 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -29,10 +28,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
-import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,10 +63,10 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             setMarkersForCrimes(it)
             setBottomListForCrimes(it)
         }
-        viewModel.currentCrimesToDisplay.observe(viewLifecycleOwner) {
-            setMarkersForCrimes(it)
-            setBottomListForCrimes(it)
-        }
+//        viewModel.currentCrimesToDisplay.observe(viewLifecycleOwner) {
+//            setMarkersForCrimes(it)
+//            setBottomListForCrimes(it)
+//        }
 
         viewModel.chipCategories.observe(viewLifecycleOwner) {
             setChipsForChipCategories(it, container)
@@ -184,7 +181,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                     binding.chipGroup.checkedChipIds,
                     currentCheckedNames
                 )
-                viewModel.loadListFilteredByChipsNames()
+                viewModel.loadAllCrimes()
             }
         }
     }
@@ -192,7 +189,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private fun loadViewModelData() {
         viewModel.loadCrimeCategories()
         viewModel.loadChipCategories()
-        viewModel.loadAllCrimes(51.52830802068529, -0.13734309192562905)
     }
 
     private fun loadGoogleMaps() {
@@ -219,6 +215,12 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         var oldZoom = .0f
 
         googleMap.setOnCameraIdleListener {
+            viewModel.setCurrentCameraPosition(
+                googleMap.projection.visibleRegion.latLngBounds,
+                googleMap.cameraPosition.target.latitude,
+                googleMap.cameraPosition.target.longitude
+            )
+
             val distanceLat = abs(oldPositionLat - googleMap.cameraPosition.target.latitude)
             val distanceLng = abs(oldPositionLng - googleMap.cameraPosition.target.longitude)
             val differenceZoom = abs(oldZoom - googleMap.cameraPosition.zoom)
@@ -226,11 +228,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             if (googleMap.cameraPosition.zoom > maxLoadingZoom &&
                 (distanceLat > latOffset || distanceLng > lngOffset || differenceZoom > zoomOffset)
             ) {
-                viewModel.loadAllCrimes(
-                    googleMap.projection.visibleRegion.latLngBounds,
-                    googleMap.cameraPosition.target.latitude,
-                    googleMap.cameraPosition.target.longitude
-                )
+                viewModel.loadAllCrimes()
                 oldPositionLat = googleMap.cameraPosition.target.latitude
                 oldPositionLng = googleMap.cameraPosition.target.longitude
                 oldZoom = googleMap.cameraPosition.zoom
