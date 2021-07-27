@@ -94,7 +94,7 @@
                 android:layout_marginHorizontal="@dimen/margin_horizontal_32"
                 android:layout_marginBottom="@dimen/margin_bottom_48"
                 android:contentDescription="@string/up_fab_desc"
-                app:backgroundTint="@color/ligh_green"
+                app:backgroundTint="@color/white"
                 app:srcCompat="@drawable/ic_baseline_arrow_upward_24" />
 
             <include
