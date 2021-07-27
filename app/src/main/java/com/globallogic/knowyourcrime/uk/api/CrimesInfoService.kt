@@ -196,9 +196,9 @@ class CrimesInfoService(
 
         getAllCrimesFromNetworkWithDate(
             latLngBounds,
-            latitude,
             gpsLatitude,
             gpsLongitude,
+            latitude,
             longitude,
             date
         ).collect {
