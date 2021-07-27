@@ -1,19 +1,15 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.fragment.navArgs
-import com.globallogic.knowyourcrime.R
-import com.globallogic.knowyourcrime.databinding.DetailsFragmentBinding
 import com.globallogic.knowyourcrime.databinding.FragmentScreenDetailsBinding
-import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.koin.android.ext.android.inject
+import kotlin.math.roundToInt
 
 class ScreenDetailsFragment : BottomSheetDialogFragment() {
 
@@ -43,6 +39,8 @@ class ScreenDetailsFragment : BottomSheetDialogFragment() {
         }.replace('-', ' ')
         binding.crimeRow.textViewLocationType.text = args.crimeDetails.location_type
         binding.crimeRow.textViewMonth.text = args.crimeDetails.month
+        val distanceText = "${args.crimeDetails.distanceFromGPS.roundToInt()} m"
+        binding.crimeRow.textViewDistance.text = distanceText
         binding.textViewLatitude.text = args.crimeDetails.location.latitude
         binding.textViewLongitude.text = args.crimeDetails.location.longitude
         binding.textViewIdContent.text = args.crimeDetails.id.toString()

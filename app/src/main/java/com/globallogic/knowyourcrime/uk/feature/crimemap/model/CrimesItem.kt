@@ -13,5 +13,6 @@ data class CrimesItem(
     val location_type: String = "",
     val month: String = "",
     val outcome_status: OutcomeStatus = OutcomeStatus(),
-    val persistent_id: String = ""
+    val persistent_id: String = "",
+    var distanceFromGPS: Double = .0
 ) : Parcelable

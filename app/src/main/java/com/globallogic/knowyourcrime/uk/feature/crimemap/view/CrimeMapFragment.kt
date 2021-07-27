@@ -1,12 +1,16 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.view
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.location.Location
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -19,15 +23,12 @@ import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItemMarker
 import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
 import com.google.maps.android.clustering.ClusterManager
@@ -38,7 +39,17 @@ import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import kotlin.math.abs
 
+private const val OFFLINE_GPS_LATITUDE = 52.21434496480181
+private const val OFFLINE_GPS_LONGITUDE = 0.12568139995511415
+
 class CrimeMapFragment : Fragment(), OnMapReadyCallback {
+
+    companion object {
+        val PERMISSIONS = arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+    }
 
     private val viewModel: CrimeMapFragmentViewModel by inject()
     private lateinit var _binding: CrimeMapBinding
@@ -47,12 +58,22 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var googleMap: GoogleMap
     private lateinit var clusterManager: ClusterManager<CrimesItemMarker>
 
-    private var mFusedLocationClient: FusedLocationProviderClient? = null
-    private var mLastLocation: Location? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var bottomSheetAdapter: BottomSheetAdapter
-
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
+
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
+
+    private var gpsMarker: Marker? = null
+
+    private val permissionRequestLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.all {
+                it.value == true
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,44 +91,51 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             setChipsForChipCategories(it, container)
         }
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        viewModel.currentGPSPosition.observe(viewLifecycleOwner) {
+            setGPSMarker(it)
+        }
 
 
         loadViewModelData()
         loadGoogleMaps()
+        loadBottomSheet()
 
-        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        binding.fab.setOnClickListener {
-            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            else
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        locationRequest = LocationRequest.create().apply {
+            interval = 100
+            fastestInterval = 50
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            maxWaitTime = 100
         }
+        locationCallback = object : LocationCallback() {
+            var firstCallback = true
+            override fun onLocationResult(locationResult: LocationResult) {
+                if (firstCallback) {
+                    val location = locationResult.lastLocation
+                    setUpCamera(location.latitude, location.longitude, 16.0f)
+                    firstCallback = false
+                }
 
-        binding.bottomSheet.sortAlphabetically.setOnClickListener {
-            viewModel.sortListAlphabetically(binding.bottomSheet.sortAlphabetically.isChecked)
-
-            bottomSheetAdapter.notifyDataSetChanged()
-            binding.bottomSheet.recyclerViewBottomSheet.smoothScrollToPosition(0)
+                if (locationResult.locations.isNotEmpty()) {
+                    val location = locationResult.lastLocation
+                    viewModel.updateCurrentGPSPosition(location.latitude, location.longitude)
+                }
+            }
         }
 
         return binding.root
     }
 
-    @SuppressLint("MissingPermission")
-    private fun getLastLocation() {
-        mFusedLocationClient!!.lastLocation
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful && task.result != null) {
-                    mLastLocation = task.result
-
-                }
-            }
-        mFusedLocationClient!!.lastLocation.addOnSuccessListener {
-            mLastLocation = it
-            Log.d("${(mLastLocation)!!.latitude}", "${(mLastLocation)!!.longitude}")
+    private fun setGPSMarker(latLng: LatLng) {
+        if (gpsMarker != null) {
+            gpsMarker?.remove()
         }
+        gpsMarker = googleMap.addMarker(
+            MarkerOptions()
+                .position(latLng)
+                .title("you are here")
+        )
     }
 
     private fun setBottomListForCrimes(crimes: Crimes) {
@@ -116,6 +144,9 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             bottomSheetAdapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
             adapter = bottomSheetAdapter
         }
+
+        viewModel.sortListByDistance(false)
+        bottomSheetAdapter.notifyDataSetChanged()
     }
 
     private fun setMarkersForCrimes(crimes: Crimes) {
@@ -200,25 +231,50 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+    private fun loadBottomSheet() {
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet)
+
+        binding.fab.setOnClickListener {
+            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            else
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        binding.bottomSheet.sortByDistance.setOnClickListener {
+            viewModel.sortListByDistance(binding.bottomSheet.sortByDistance.isChecked)
+
+            bottomSheetAdapter.notifyDataSetChanged()
+            binding.bottomSheet.recyclerViewBottomSheet.smoothScrollToPosition(0)
+        }
+
+        binding.bottomSheet.sortAlphabetically.setOnClickListener {
+            viewModel.sortListAlphabetically(binding.bottomSheet.sortAlphabetically.isChecked)
+
+            bottomSheetAdapter.notifyDataSetChanged()
+            binding.bottomSheet.recyclerViewBottomSheet.smoothScrollToPosition(0)
+        }
+
+    }
+
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         initClusterManager()
-        setUpCamera(51.52830802068529, -0.13734309192562905, 16.0f)
-        loadCrimesToMapBasedOnCamera(0.006, 0.006, 0.01f, 12.5f)
+        loadCrimesToMapBasedOnCamera(0.006, 0.006, 0.01f)
+        initFusedLocationClient()
     }
 
     private fun loadCrimesToMapBasedOnCamera(
         latOffset: Double,
         lngOffset: Double,
-        zoomOffset: Float,
-        maxLoadingZoom: Float
+        zoomOffset: Float
     ) {
         var oldPositionLat = .0
         var oldPositionLng = .0
         var oldZoom = .0f
 
         googleMap.setOnCameraIdleListener {
-            viewModel.setCurrentCameraPosition(
+            viewModel.updateCurrentCameraPosition(
                 googleMap.projection.visibleRegion.latLngBounds,
                 googleMap.cameraPosition.target.latitude,
                 googleMap.cameraPosition.target.longitude
@@ -228,9 +284,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             val distanceLng = abs(oldPositionLng - googleMap.cameraPosition.target.longitude)
             val differenceZoom = abs(oldZoom - googleMap.cameraPosition.zoom)
 
-            if (googleMap.cameraPosition.zoom > maxLoadingZoom &&
-                (distanceLat > latOffset || distanceLng > lngOffset || differenceZoom > zoomOffset)
-            ) {
+            if ((distanceLat > latOffset || distanceLng > lngOffset || differenceZoom > zoomOffset)) {
                 viewModel.loadAllCrimes()
                 oldPositionLat = googleMap.cameraPosition.target.latitude
                 oldPositionLng = googleMap.cameraPosition.target.longitude
@@ -288,4 +342,70 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         val latLng = LatLng(latitude, longitude)
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
     }
+
+    override fun onResume() {
+        super.onResume()
+        startLocationUpdates()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun startLocationUpdates() {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initFusedLocationClient() {
+        fusedLocationClient.lastLocation.addOnSuccessListener {
+            viewModel.updateCurrentGPSPosition(it.latitude, it.longitude)
+        }
+        fusedLocationClient.lastLocation.addOnCompleteListener {
+            if (!isLocationEnabled() || !checkLocationPermission()) {
+                permissionRequestLauncher.launch(PERMISSIONS)
+            }
+        }
+        fusedLocationClient.lastLocation.addOnFailureListener {
+            viewModel.updateCurrentGPSPosition(OFFLINE_GPS_LATITUDE, OFFLINE_GPS_LONGITUDE)
+            setUpCamera(OFFLINE_GPS_LATITUDE, OFFLINE_GPS_LONGITUDE, 16.0f)
+        }
+    }
+
+    private fun checkLocationPermission(): Boolean {
+        if (ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            ||
+            ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+
+        return false
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager =
+            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+
 }
