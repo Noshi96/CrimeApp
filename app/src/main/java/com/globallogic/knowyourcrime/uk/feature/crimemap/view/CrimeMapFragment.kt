@@ -264,6 +264,13 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             else
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+        }
+
+        binding.fabCurrentPosition.setOnClickListener {
+            viewModel.currentGPSPosition.value?.let {
+                setUpCamera(it.latitude, it.longitude, 22.0f)
+            }
         }
 
         binding.bottomSheet.sortByDistance.setOnClickListener {
@@ -431,6 +438,18 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER
         )
+    }
+
+    private fun moveToCurrentPosition() {
+        googleMap.setOnCameraIdleListener {
+            viewModel.currentGPSPosition.value?.let {
+                viewModel.updateCurrentCameraPosition(
+                    googleMap.projection.visibleRegion.latLngBounds,
+                    it.latitude,
+                    it.longitude
+                )
+            }
+        }
     }
 
 }
