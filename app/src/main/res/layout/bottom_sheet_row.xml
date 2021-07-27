@@ -4,13 +4,13 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="88dp">
+        android:layout_height="@dimen/bottom_sheet_height_row">
 
         <ImageView
             android:id="@+id/image_view_icon_bottom_sheet_row"
-            android:layout_width="100dp"
-            android:layout_height="56dp"
-            android:contentDescription="desc"
+            android:layout_width="@dimen/three_line_row_image_width"
+            android:layout_height="@dimen/three_line_row_image_height"
+            android:contentDescription="@string/crime_icon_desc"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -21,8 +21,8 @@
             style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="Burglarydddd"
+            android:layout_marginStart="@dimen/three_line_row_margin_start"
+            android:text="@string/sample_text"
             app:layout_constraintStart_toEndOf="@+id/image_view_icon_bottom_sheet_row"
             app:layout_constraintTop_toTopOf="@+id/image_view_icon_bottom_sheet_row" />
 
@@ -31,8 +31,8 @@
             style="@style/TextAppearance.MdcTypographyStyles.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="Force"
+            android:layout_marginStart="@dimen/three_line_row_margin_start"
+            android:text="@string/sample_text"
             app:layout_constraintStart_toEndOf="@+id/image_view_icon_bottom_sheet_row"
             app:layout_constraintTop_toBottomOf="@+id/text_view_category" />
 
@@ -41,9 +41,8 @@
             style="@style/TextAppearance.MdcTypographyStyles.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="2020 / 01"
-
+            android:layout_marginStart="@dimen/three_line_row_margin_start"
+            android:text="@string/sample_text"
             app:layout_constraintStart_toEndOf="@+id/image_view_icon_bottom_sheet_row"
             app:layout_constraintTop_toBottomOf="@+id/text_view_location_type" />
 
@@ -52,8 +51,8 @@
             style="@style/TextAppearance.MdcTypographyStyles.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingEnd="16dp"
-            android:text="200m"
+            android:paddingEnd="@dimen/padding_end_16"
+            android:text="@string/sample_text"
             app:layout_constraintBottom_toBottomOf="@+id/text_view_category"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/text_view_category" />
@@ -61,15 +60,14 @@
         <View
             android:id="@+id/view"
             android:layout_width="fill_parent"
-            android:layout_height="2dp"
+            android:layout_height="@dimen/layout_height_2"
             android:layout_marginTop="16dp"
-            android:background="#3AAAAAAA"
+            android:background="@color/gray"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_view_month" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </layout>
 

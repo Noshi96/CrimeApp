@@ -7,14 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray">#41999999</color>
+    <color name="light_gray">#B0BEC5</color>
+    <color name="ligh_green">#00E676</color>
+    <color name="light_gray_2">#71808080</color>
+    <color name="light_gray_3">#3AAAAAAA</color>
+    <color name="light_gray_button">#00FFFFFF</color>
 
-    <color name="material_light_primary_text">#DE000000</color>
-    <color name="material_light_hint_text">#61000000</color>
-    <color name="material_light_active_icon">#8A000000</color>
-    <color name="material_ripple_light">#1F000000</color>
-    <color name="divider_color">#1F000000</color>
-    <color name="active_icon_color">#8A000000</color>
-    <color name="cards_and_dialogs_color">@android:color/white</color>
-    <color name="quantum_grey_600">#757575</color>
 
 </resources>

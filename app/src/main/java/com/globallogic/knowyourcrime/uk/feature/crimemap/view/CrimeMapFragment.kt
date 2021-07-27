@@ -32,11 +32,8 @@ import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
 import com.google.maps.android.clustering.ClusterManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.koin.android.ext.android.inject
+import kotlinx.coroutines.*
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 import kotlin.math.abs
 
 private const val OFFLINE_GPS_LATITUDE = 52.21434496480181
@@ -51,7 +48,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         )
     }
 
-    private val viewModel: CrimeMapFragmentViewModel by inject()
+    private val viewModel by sharedViewModel<CrimeMapFragmentViewModel>()
     private lateinit var _binding: CrimeMapBinding
     private val binding get() = _binding
 
@@ -61,6 +58,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var bottomSheetAdapter: BottomSheetAdapter
+
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
 
     private lateinit var locationRequest: LocationRequest
@@ -124,6 +122,13 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
+        binding.fabSettings.setOnClickListener {
+            val action =
+                CrimeMapFragmentDirections.actionCrimeMapFragmentToSettingsScreenFragment()
+            viewModel.clearCheckedChipsNamesList()
+            findNavController().navigate(action)
+        }
+
         return binding.root
     }
 
@@ -139,10 +144,15 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setBottomListForCrimes(crimes: Crimes) {
-        binding.bottomSheet.recyclerViewBottomSheet.apply {
-            layoutManager = LinearLayoutManager(activity)
-            bottomSheetAdapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
-            adapter = bottomSheetAdapter
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) {
+                binding.bottomSheet.recyclerViewBottomSheet.apply {
+                    layoutManager = LinearLayoutManager(activity)
+                    bottomSheetAdapter =
+                        BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
+                    adapter = bottomSheetAdapter
+                }
+            }
         }
 
         viewModel.sortListByDistance(false)
@@ -190,6 +200,12 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         chipsList: MutableList<Chip>
     ) {
+        var chipId = 0
+
+        if (viewModel.resetView) {
+            binding.chipGroup.removeAllViews()
+        }
+
         categoryList.forEach { categoryName ->
             val chip = layoutInflater.inflate(R.layout.chip_item, container, false) as Chip
             chip.text = categoryName
@@ -200,6 +216,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             chip.id = View.generateViewId()
             chipsList.add(chip)
             binding.chipGroup.addView(chip)
+            chipId++
         }
     }
 

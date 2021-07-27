@@ -133,6 +133,32 @@ class CrimesInfoService(
         }
     }.flowOn(Dispatchers.IO)
 
+    fun getCrimesWithCategoriesFromNetworkBasesOnNewDate(
+        categories: List<String>,
+        latLngBounds: LatLngBounds,
+        gpsLatitude: Double,
+        gpsLongitude: Double,
+        latitude: Double,
+        longitude: Double,
+        date: String
+    ): Flow<Crimes> = flow {
+
+        val newCategories = categories.toMutableList()
+        repeat(newCategories.size) { i ->
+            newCategories[i] = categories[i].lowercase().replace(" ", "-")
+        }
+
+        getAllCrimesFromNetwork(latLngBounds, latitude, gpsLatitude, gpsLongitude, longitude,date).collect {
+            val foundCrimes = Crimes()
+            it.forEach { crime ->
+                if (newCategories.contains(crime.category)) {
+                    foundCrimes.add(crime)
+                }
+            }
+            emit(foundCrimes)
+        }
+    }.flowOn(Dispatchers.IO)
+
     private fun cutDate(date: String): String = date.substring(0, 7)
 
     private fun getMapDistance(
