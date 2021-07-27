@@ -15,6 +15,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.globallogic.knowyourcrime.R
 import com.globallogic.knowyourcrime.databinding.CrimeMapBinding
@@ -90,14 +91,34 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         }
 
         viewModel.currentGPSPosition.observe(viewLifecycleOwner) {
-            setGPSMarker(it)
+            CoroutineScope(Dispatchers.IO).launch {
+                withTimeout(1000L) {
+                    withContext(Dispatchers.Main) {
+                        setGPSMarker(it)
+                    }
+                }
+            }
         }
-
 
         loadViewModelData()
         loadGoogleMaps()
         loadBottomSheet()
+        loadGPS()
+        loadSettings()
 
+        return binding.root
+    }
+
+    private fun loadSettings() {
+        binding.fabSettings.setOnClickListener {
+            val action =
+                CrimeMapFragmentDirections.actionCrimeMapFragmentToSettingsScreenFragment()
+            viewModel.clearCheckedChipsNamesList()
+            findNavController().navigate(action)
+        }
+    }
+
+    private fun loadGPS() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         locationRequest = LocationRequest.create().apply {
@@ -121,15 +142,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                 }
             }
         }
-
-        binding.fabSettings.setOnClickListener {
-            val action =
-                CrimeMapFragmentDirections.actionCrimeMapFragmentToSettingsScreenFragment()
-            viewModel.clearCheckedChipsNamesList()
-            findNavController().navigate(action)
-        }
-
-        return binding.root
     }
 
     private fun setGPSMarker(latLng: LatLng) {
@@ -154,9 +166,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                 }
             }
         }
-
-        viewModel.sortListByDistance(false)
-        bottomSheetAdapter.notifyDataSetChanged()
     }
 
     private fun setMarkersForCrimes(crimes: Crimes) {
@@ -228,7 +237,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                     currentCheckedNames.add(binding.chipGroup.findViewById<Chip>(chipId).text.toString())
                 }
                 viewModel.onSelectedChipChangesSendToViewModel(
-                    chip,
                     binding.chipGroup.checkedChipIds,
                     currentCheckedNames
                 )

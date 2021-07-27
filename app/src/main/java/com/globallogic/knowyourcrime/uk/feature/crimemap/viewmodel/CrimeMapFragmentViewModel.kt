@@ -125,7 +125,7 @@ class CrimeMapFragmentViewModel(
                                     _allCrimes.value = crime
                                 }
                         } else {
-                            crimesInfoService.getAllCrimesFromNetworkBasedOnDate(
+                            crimesInfoService.getAllCrimesFromNetworkWithDate(
                                 camera.latLngBounds,
                                 gps.latitude,
                                 gps.longitude,
@@ -171,7 +171,6 @@ class CrimeMapFragmentViewModel(
     }
 
 
-
     fun sortListAlphabetically(isChecked: Boolean) {
         if (isChecked) {
             _allCrimes.value?.sortByDescending { it.category }
@@ -188,41 +187,45 @@ class CrimeMapFragmentViewModel(
         }
     }
 
-        fun setDataFilteredBy(data: String) {
-            _dateFilteredBy.value = data
-        }
+    fun setDataFilteredBy(data: String) {
+        _dateFilteredBy.value = data
+    }
 
-        fun clearCheckedChipsNamesList() {
-            val newList = mutableListOf<String>()
-            _checkedChipsNamesList.value = newList
-        }
+    fun clearCheckedChipsNamesList() {
+        val newList = mutableListOf<String>()
+        _checkedChipsNamesList.value = newList
+    }
 
-        fun countCrimes(): StringBuilder {
-            val stringBuilder = StringBuilder()
+    fun countCrimes(): StringBuilder {
+        val stringBuilder = StringBuilder()
 
-            val newCategories = _crimeCategories.value?.toMutableList()
-            val categoryNames = mutableListOf<String>()
-            if (newCategories != null) {
-                repeat(newCategories.size) { i ->
-                    _crimeCategories.value?.get(i)?.name?.lowercase()
-                        ?.let { categoryNames.add(it.replace(" ", "-")) }
-                }
+        val newCategories = _crimeCategories.value?.toMutableList()
+        val categoryNames = mutableListOf<String>()
+        if (newCategories != null) {
+            repeat(newCategories.size) { i ->
+                _crimeCategories.value?.get(i)?.name?.lowercase()
+                    ?.let { categoryNames.add(it.replace(" ", "-")) }
             }
-            categoryNames.forEach { crimeCategoriesItem ->
-                var count = 0
-                if (crimeCategoriesItem != "all-crime") {
-                    count = _allCrimes.value?.count { crimesItem ->
-                        Log.d("${crimesItem.category} ", "${crimeCategoriesItem}")
-                        crimesItem.category == crimeCategoriesItem || (crimesItem.category == "violent-crime" && crimeCategoriesItem == "violence-and-sexual-offences")
-                                || (crimesItem.category == "criminal-damage-arson" && crimeCategoriesItem =="criminal-damage-and-arson")
-                    }!!
-                    stringBuilder.append("${crimeCategoriesItem.replaceFirstChar {
-                        it.uppercase()
-                    }.replace('-', ' ')} = $count \n")
-                }
-            }
-            return stringBuilder
         }
+        categoryNames.forEach { crimeCategoriesItem ->
+            var count = 0
+            if (crimeCategoriesItem != "all-crime") {
+                count = _allCrimes.value?.count { crimesItem ->
+                    Log.d("${crimesItem.category} ", "${crimeCategoriesItem}")
+                    crimesItem.category == crimeCategoriesItem || (crimesItem.category == "violent-crime" && crimeCategoriesItem == "violence-and-sexual-offences")
+                            || (crimesItem.category == "criminal-damage-arson" && crimeCategoriesItem == "criminal-damage-and-arson")
+                }!!
+                stringBuilder.append(
+                    "${
+                        crimeCategoriesItem.replaceFirstChar {
+                            it.uppercase()
+                        }.replace('-', ' ')
+                    } = $count \n"
+                )
+            }
+        }
+        return stringBuilder
+    }
 }
 
 
