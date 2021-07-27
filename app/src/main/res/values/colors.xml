@@ -12,6 +12,7 @@
     <color name="ligh_green">#00E676</color>
     <color name="light_gray_2">#71808080</color>
     <color name="light_gray_3">#3AAAAAAA</color>
+    <color name="light_gray_button">#00FFFFFF</color>
 
 
 </resources>

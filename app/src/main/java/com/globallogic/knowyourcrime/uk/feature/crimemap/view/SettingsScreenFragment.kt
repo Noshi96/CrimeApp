@@ -33,6 +33,8 @@ class SettingsScreenFragment : Fragment() {
         setCheckBoxAndEditText()
         validDateEditText()
 
+        binding.htmlPart.text = viewModel.countCrimes()
+
     }
 
     private fun navigateToMap() {
@@ -70,7 +72,8 @@ class SettingsScreenFragment : Fragment() {
 
             if (it?.length == 7 && (it.substring(4, 5) == "-" && (it.substring(0, 4)
                     .toInt() <= 2021) && (it.substring(0, 4)
-                    .toInt() > 2015) && (it.substring(5, 7).toInt() < 13))
+                    .toInt() > 2015) && (it.substring(5, 7).toInt() < 13) && (it.substring(5, 7)
+                    .toInt() > 0))
             ) {
                 if (it.substring(0, 4).toInt() == 2021) {
                     binding.buttonBack.isEnabled = it.substring(5, 7).toInt() < 6
@@ -80,9 +83,7 @@ class SettingsScreenFragment : Fragment() {
             } else {
                 binding.buttonBack.isEnabled = false
             }
-
         }
-
     }
 
 }

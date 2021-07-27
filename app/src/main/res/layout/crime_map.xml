@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,30 +15,32 @@
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_view"
-            android:layout_width="match_parent"
+            android:layout_width="@dimen/dp_0"
             android:layout_height="@dimen/search_view_height"
             android:layout_marginStart="@dimen/search_view_margin"
             android:layout_marginTop="@dimen/search_view_margin_top"
-            android:layout_marginEnd="@dimen/search_view_margin"
             android:background="@drawable/bg_white_rounded"
             android:elevation="@dimen/elevation_value"
             app:iconifiedByDefault="false"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fab_settings"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/map"
+            app:layout_constraintTop_toTopOf="parent"
             app:queryHint="Search Here" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginHorizontal="@dimen/margin_horizontal_32"
-            android:layout_marginTop="@dimen/margin_top_16"
+            android:layout_marginEnd="@dimen/margin_end_16"
             android:contentDescription="@string/setting_desc"
-            app:backgroundTint="@color/light_gray"
+            app:backgroundTint="@color/light_gray_button"
+            app:borderWidth="@dimen/dp_0"
+            app:elevation="@dimen/dp_0"
+            app:layout_constraintBottom_toBottomOf="@id/search_view"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/horizontal_scroll_view"
+            app:layout_constraintStart_toEndOf="@id/search_view"
+            app:layout_constraintTop_toTopOf="@id/search_view"
+            app:pressedTranslationZ="@dimen/dp_0"
             app:srcCompat="@drawable/ic_baseline_settings_24" />
 
         <HorizontalScrollView

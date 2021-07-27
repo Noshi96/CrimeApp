@@ -1,6 +1,7 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel
 
 import android.util.Log
+import android.util.StringBuilderPrinter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -147,7 +148,6 @@ class CrimeMapFragmentViewModel(
         currentCheckedNames: MutableList<String>
     ) {
         _checkedChipsNamesList.value = mutableListOf()
-        Log.d("ddd", "${_checkedChipsNamesList.value}")
         _checkedChipsIdsList.value = checkedChipIds
         _checkedChipsNamesList.value = currentCheckedNames
     }
@@ -171,6 +171,33 @@ class CrimeMapFragmentViewModel(
     fun clearCheckedChipsNamesList() {
         val newList = mutableListOf<String>()
         _checkedChipsNamesList.value = newList
+    }
+
+    fun countCrimes(): StringBuilder {
+        val stringBuilder = StringBuilder()
+
+        val newCategories = _crimeCategories.value?.toMutableList()
+        val categoryNames = mutableListOf<String>()
+        if (newCategories != null) {
+            repeat(newCategories.size) { i ->
+                _crimeCategories.value?.get(i)?.name?.lowercase()
+                    ?.let { categoryNames.add(it.replace(" ", "-")) }
+            }
+        }
+        categoryNames.forEach { crimeCategoriesItem ->
+            var count = 0
+            if (crimeCategoriesItem != "all-crime") {
+                count = _allCrimes.value?.count { crimesItem ->
+                    Log.d("${crimesItem.category} ", "${crimeCategoriesItem}")
+                    crimesItem.category == crimeCategoriesItem || (crimesItem.category == "violent-crime" && crimeCategoriesItem == "violence-and-sexual-offences")
+                            || (crimesItem.category == "criminal-damage-arson" && crimeCategoriesItem =="criminal-damage-and-arson")
+                }!!
+                stringBuilder.append("${crimeCategoriesItem.replaceFirstChar {
+                    it.uppercase()
+                }.replace('-', ' ')} = $count \n")
+            }
+        }
+        return stringBuilder
     }
 
 }

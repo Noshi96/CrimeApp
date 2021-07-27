@@ -119,7 +119,8 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             withContext(Dispatchers.Main) {
                 binding.bottomSheet.recyclerViewBottomSheet.apply {
                     layoutManager = LinearLayoutManager(activity)
-                    bottomSheetAdapter = BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
+                    bottomSheetAdapter =
+                        BottomSheetAdapter(crimes as ArrayList<CrimesItem>, googleMap)
                     adapter = bottomSheetAdapter
                 }
             }
@@ -159,8 +160,8 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     ) {
         val chipsList = mutableListOf<Chip>()
         //if (!viewModel.callFuncOnce) {
-            addChipsToViewAndLoadChipsList(chipCategories, container, chipsList)
-            //viewModel.callFuncOnce = true
+        addChipsToViewAndLoadChipsList(chipCategories, container, chipsList)
+        //viewModel.callFuncOnce = true
         //}
         setChipsListenerAndUpdateViewModel(chipsList)
     }
@@ -172,7 +173,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     ) {
         var chipId = 0
 
-        if (viewModel.resetView){
+        if (viewModel.resetView) {
             binding.chipGroup.removeAllViews()
         }
 
