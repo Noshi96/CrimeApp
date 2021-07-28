@@ -12,19 +12,23 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <androidx.appcompat.widget.SearchView
+        <TextView
             android:id="@+id/search_view"
+            style="@style/TextAppearance.MdcTypographyStyles.Body2"
             android:layout_width="@dimen/dp_0"
             android:layout_height="@dimen/search_view_height"
             android:layout_marginStart="@dimen/search_view_margin"
             android:layout_marginTop="@dimen/search_view_margin_top"
             android:background="@drawable/bg_white_rounded"
             android:elevation="@dimen/elevation_value"
-            app:iconifiedByDefault="false"
+            android:gravity="center"
+            android:paddingEnd="@dimen/padding_end_48"
+            android:text="@string/know_your_crime_global_app"
+            android:textAlignment="center"
+            app:drawableEndCompat="@drawable/thief2"
             app:layout_constraintEnd_toStartOf="@id/fab_settings"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:queryHint="Search Here" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_settings"
@@ -48,8 +52,8 @@
             android:layout_marginEnd="@dimen/margin_horizontal_16"
             android:contentDescription="@string/current_position"
             app:backgroundTint="@color/white"
-            app:layout_constraintEnd_toStartOf="@id/fab"
             app:layout_constraintBottom_toBottomOf="@id/fab"
+            app:layout_constraintEnd_toStartOf="@id/fab"
             app:srcCompat="@drawable/ic_baseline_person_pin_24" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -88,9 +92,9 @@
             android:layout_marginBottom="@dimen/margin_bottom_48"
             android:contentDescription="@string/up_fab_desc"
             app:backgroundTint="@color/white"
-            app:srcCompat="@drawable/ic_baseline_arrow_upward_24"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:srcCompat="@drawable/ic_baseline_arrow_upward_24" />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/CoordinatorLayout"
