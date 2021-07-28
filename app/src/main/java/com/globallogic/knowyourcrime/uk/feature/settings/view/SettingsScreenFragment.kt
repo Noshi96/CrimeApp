@@ -1,20 +1,25 @@
-package com.globallogic.knowyourcrime.uk.feature.crimemap.view
+package com.globallogic.knowyourcrime.uk.feature.settings.view
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.globallogic.knowyourcrime.databinding.FragmentSettingsScreenBinding
 import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
+import com.globallogic.knowyourcrime.uk.feature.settings.viewmodel.SettingsViewModel
 import org.koin.android.viewmodel.ext.android.sharedViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
+
+private const val DEFAULT_DATE = "2021-05"
 
 class SettingsScreenFragment : Fragment() {
 
-    private val viewModel by sharedViewModel<CrimeMapFragmentViewModel>()
+    private val crimeMapViewModel by sharedViewModel<CrimeMapFragmentViewModel>()
+    private val settingsViewModel by viewModel<SettingsViewModel>()
+
     private lateinit var _binding: FragmentSettingsScreenBinding
     private val binding get() = _binding
 
@@ -23,6 +28,15 @@ class SettingsScreenFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSettingsScreenBinding.inflate(inflater, container, false)
+
+        settingsViewModel.countCrimesText.observe(viewLifecycleOwner) {
+            binding.htmlPart.text = it
+        }
+
+        settingsViewModel.dateValid.observe(viewLifecycleOwner) {
+            binding.buttonBack.isEnabled = it
+        }
+        
         return binding.root
     }
 
@@ -33,14 +47,20 @@ class SettingsScreenFragment : Fragment() {
         setCheckBoxAndEditText()
         validDateEditText()
 
-        binding.htmlPart.text = viewModel.countCrimes()
-
+        crimeMapViewModel.crimeCategories.value?.let { categories ->
+            crimeMapViewModel.allCrimes.value?.let { crimes ->
+                settingsViewModel.countCrimes(
+                    categories,
+                    crimes
+                )
+            }
+        }
     }
 
     private fun navigateToMap() {
         binding.buttonBack.setOnClickListener {
-            viewModel.setDataFilteredBy(binding.editTextDateFrom.editText?.text.toString())
-            viewModel.resetView = true
+            crimeMapViewModel.setDataFilteredBy(binding.editTextDateFrom.editText?.text.toString())
+            crimeMapViewModel.resetView = true
 
             val action =
                 SettingsScreenFragmentDirections.actionSettingsScreenFragmentToCrimeMapFragment()
@@ -51,16 +71,16 @@ class SettingsScreenFragment : Fragment() {
     private fun setCheckBoxAndEditText() {
         if (binding.checkboxUpToDate.isChecked) {
             binding.editTextDateFrom.editText?.isEnabled = false
-            binding.editTextDateFrom.editText?.setText("2021-05")
+            binding.editTextDateFrom.editText?.setText(DEFAULT_DATE)
         } else {
-            binding.editTextDateFrom.editText?.setText(viewModel.dateFilteredBy.value.toString())
+            binding.editTextDateFrom.editText?.setText(crimeMapViewModel.dateFilteredBy.value.toString())
             binding.editTextDateFrom.editText?.isEnabled = true
         }
 
         binding.checkboxUpToDate.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 binding.editTextDateFrom.editText?.isEnabled = false
-                binding.editTextDateFrom.editText?.setText("2021-05")
+                binding.editTextDateFrom.editText?.setText(DEFAULT_DATE)
             } else {
                 binding.editTextDateFrom.editText?.isEnabled = true
             }
@@ -69,20 +89,7 @@ class SettingsScreenFragment : Fragment() {
 
     private fun validDateEditText() {
         binding.editTextDateFrom.editText?.doAfterTextChanged {
-
-            if (it?.length == 7 && (it.substring(4, 5) == "-" && (it.substring(0, 4)
-                    .toInt() <= 2021) && (it.substring(0, 4)
-                    .toInt() > 2015) && (it.substring(5, 7).toInt() < 13) && (it.substring(5, 7)
-                    .toInt() > 0))
-            ) {
-                if (it.substring(0, 4).toInt() == 2021) {
-                    binding.buttonBack.isEnabled = it.substring(5, 7).toInt() < 6
-                } else {
-                    binding.buttonBack.isEnabled = true
-                }
-            } else {
-                binding.buttonBack.isEnabled = false
-            }
+            settingsViewModel.validateDate(it.toString())
         }
     }
 

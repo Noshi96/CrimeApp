@@ -27,7 +27,7 @@
     </dialog>
     <fragment
         android:id="@+id/settingsScreenFragment"
-        android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.SettingsScreenFragment"
+        android:name="com.globallogic.knowyourcrime.uk.feature.settings.view.SettingsScreenFragment"
         android:label="SettingsScreenFragment" >
         <action
             android:id="@+id/action_settingsScreenFragment_to_crimeMapFragment"

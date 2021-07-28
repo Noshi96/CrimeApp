@@ -40,6 +40,18 @@ import kotlin.math.abs
 private const val OFFLINE_GPS_LATITUDE = 52.21434496480181
 private const val OFFLINE_GPS_LONGITUDE = 0.12568139995511415
 
+private const val GPS_FETCH_TIMEOUT = 1000L
+private const val GPS_FETCH_INTERVAL = 100L
+
+private const val DEFAULT_CAMERA_ZOOM = 16.0f
+private const val DETAILS_CAMERA_ZOOM = 22.0f
+private const val DETAILS_CAMERA_ZOOM_LATITUDE_OFFSET = 0.00005443289f
+private const val DETAILS_CAMERA_ZOOM_LONGITUDE_OFFSET = 0.00000268221f
+
+private const val FETCH_LATITUDE_OFFSET = 0.006
+private const val FETCH_LONGITUDE_OFFSET = 0.006
+private const val FETCH_ZOOM_OFFSET = 0.001f
+
 class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
     companion object {
@@ -92,7 +104,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
         viewModel.currentGPSPosition.observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                withTimeout(1000L) {
+                withTimeout(GPS_FETCH_TIMEOUT) {
                     withContext(Dispatchers.Main) {
                         setGPSMarker(it)
                     }
@@ -122,17 +134,17 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         locationRequest = LocationRequest.create().apply {
-            interval = 100
-            fastestInterval = 50
+            interval = GPS_FETCH_INTERVAL
+            fastestInterval = GPS_FETCH_INTERVAL / 2
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            maxWaitTime = 100
+            maxWaitTime = GPS_FETCH_INTERVAL
         }
         locationCallback = object : LocationCallback() {
             var firstCallback = true
             override fun onLocationResult(locationResult: LocationResult) {
                 if (firstCallback) {
                     val location = locationResult.lastLocation
-                    setUpCamera(location.latitude, location.longitude, 16.0f)
+                    setUpCamera(location.latitude, location.longitude)
                     firstCallback = false
                 }
 
@@ -170,7 +182,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
     private fun setMarkersForCrimes(crimes: Crimes) {
         CoroutineScope(Dispatchers.IO).launch {
-
             withContext(Dispatchers.Main) {
                 clusterManager.clearItems()
             }
@@ -288,15 +299,11 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         initClusterManager()
-        loadCrimesToMapBasedOnCamera(0.006, 0.006, 0.01f)
+        loadCrimesToMapBasedOnCamera()
         initFusedLocationClient()
     }
 
-    private fun loadCrimesToMapBasedOnCamera(
-        latOffset: Double,
-        lngOffset: Double,
-        zoomOffset: Float
-    ) {
+    private fun loadCrimesToMapBasedOnCamera() {
         var oldPositionLat = .0
         var oldPositionLng = .0
         var oldZoom = .0f
@@ -312,7 +319,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             val distanceLng = abs(oldPositionLng - googleMap.cameraPosition.target.longitude)
             val differenceZoom = abs(oldZoom - googleMap.cameraPosition.zoom)
 
-            if ((distanceLat > latOffset || distanceLng > lngOffset || differenceZoom > zoomOffset)) {
+            if ((distanceLat > FETCH_LATITUDE_OFFSET || distanceLng > FETCH_LONGITUDE_OFFSET || differenceZoom > FETCH_ZOOM_OFFSET)) {
                 viewModel.loadAllCrimes()
                 oldPositionLat = googleMap.cameraPosition.target.latitude
                 oldPositionLng = googleMap.cameraPosition.target.longitude
@@ -332,21 +339,20 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         )
 
         clusterManager.setOnClusterItemClickListener {
-
             val crimesItem: CrimesItem = viewModel.getCrimesItemById(it.crimeId) ?: CrimesItem()
             val action =
                 CrimeMapFragmentDirections.actionCrimeMapFragmentToScreenDetailsFragment(
                     crimesItem
                 )
-            val offsetLatSub = 0.00005443289f
-            val offsetLongSub = 0.00000268221f
+            val offsetLatSub = DETAILS_CAMERA_ZOOM_LATITUDE_OFFSET
+            val offsetLongSub = DETAILS_CAMERA_ZOOM_LONGITUDE_OFFSET
             val latLng = LatLng(
                 crimesItem.location.latitude.toDouble() - offsetLatSub,
                 crimesItem.location.longitude.toDouble() - offsetLongSub
             )
 
             val cameraPosition = CameraPosition.Builder()
-                .target(latLng).zoom(22.0f).build()
+                .target(latLng).zoom(DETAILS_CAMERA_ZOOM).build()
 
             googleMap.uiSettings.isScrollGesturesEnabled = false
             googleMap.animateCamera(
@@ -366,9 +372,21 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun setUpCamera(latitude: Double, longitude: Double, zoom: Float) {
+    private fun setUpCamera(latitude: Double, longitude: Double) {
         val latLng = LatLng(latitude, longitude)
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
+
+        googleMap.uiSettings.isScrollGesturesEnabled = false
+        googleMap.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_CAMERA_ZOOM),
+            object : GoogleMap.CancelableCallback {
+                override fun onFinish() {
+                    googleMap.uiSettings.isScrollGesturesEnabled = true
+                }
+
+                override fun onCancel() {
+                    googleMap.uiSettings.setAllGesturesEnabled(true)
+                }
+            })
     }
 
     override fun onResume() {
@@ -407,7 +425,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         }
         fusedLocationClient.lastLocation.addOnFailureListener {
             viewModel.updateCurrentGPSPosition(OFFLINE_GPS_LATITUDE, OFFLINE_GPS_LONGITUDE)
-            setUpCamera(OFFLINE_GPS_LATITUDE, OFFLINE_GPS_LONGITUDE, 16.0f)
+            setUpCamera(OFFLINE_GPS_LATITUDE, OFFLINE_GPS_LONGITUDE)
         }
     }
 
