@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -175,6 +174,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             withContext(Dispatchers.Main) {
                 clusterManager.clearItems()
             }
+            val icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_image)
             crimes.forEach { crime ->
                 withContext(Dispatchers.Main) {
                     clusterManager.addItem(
@@ -182,7 +182,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                             crime.id,
                             crime.location.latitude.toDouble(),
                             crime.location.longitude.toDouble(),
-                            returnIconBasedOnCategoryName(crime.category),
+                            icon,
                             crime.category,
                             crime.location.street.name
                         )
@@ -193,27 +193,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                 clusterManager.cluster()
             }
         }
-    }
-
-    private fun returnIconBasedOnCategoryName(category: String): BitmapDescriptor {
-        var index = 0
-        when(category){
-            "anti-social-behaviour" -> index = R.drawable.shout2
-            "bicycle-theft" -> index = R.drawable.bicycle
-            "burglary" -> index = R.drawable.burglar2
-            "criminal-damage-arson" -> index = R.drawable.fire
-            "drugs" -> index = R.drawable.meds
-            "other-theft" -> index = R.drawable.thief2
-            "possession-of-weapons" -> index = R.drawable.gun
-            "public-order" -> index = R.drawable.vandalism
-            "robbery" -> index = R.drawable.robbery
-            "shoplifting" -> index = R.drawable.shoppingcart
-            "theft-from-the-person" -> index = R.drawable.onlinerobbery
-            "vehicle-crime" -> index = R.drawable.car
-            "violent-crime" -> index = R.drawable.violentcrime
-            "other-crime" -> index = R.drawable.other
-        }
-        return BitmapDescriptorFactory.fromResource(index)
     }
 
     private fun setChipsForChipCategories(
