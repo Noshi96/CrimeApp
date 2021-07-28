@@ -1,6 +1,5 @@
 package com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -76,72 +75,75 @@ class CrimeMapFragmentViewModel(
             categories = null
         }
 
-        categories?.let {
-            viewModelScope.launch {
-                _currentCameraPosition.value?.let { camera ->
-                    _currentGPSPosition.value?.let { gps ->
-                        if (_dateFilteredBy.value.isNullOrEmpty()) {
-                            crimesInfoService.getRecentCrimesWithCategoriesFromNetwork(
-                                categories,
-                                camera.latLngBounds,
-                                gps.latitude,
-                                gps.longitude,
-                                camera.latitude,
-                                camera.longitude
-                            )
-                                .collect { crime ->
-                                    _allCrimes.value = crime
-                                }
-                        } else {
-                            crimesInfoService.getCrimesWithCategoriesFromNetworkBasesOnNewDate(
-                                categories,
-                                camera.latLngBounds,
-                                gps.latitude,
-                                gps.longitude,
-                                camera.latitude,
-                                camera.longitude,
-                                _dateFilteredBy.value!!
-                            )
-                                .collect { crime ->
-                                    _allCrimes.value = crime
-                                }
-                        }
-                    }
-                }
-            }
-        } ?: run {
-            viewModelScope.launch {
-                _currentCameraPosition.value?.let { camera ->
-                    _currentGPSPosition.value?.let { gps ->
-                        if (_dateFilteredBy.value.isNullOrEmpty()) {
-                            crimesInfoService.getAllRecentCrimesFromNetwork(
-                                camera.latLngBounds,
-                                gps.latitude,
-                                gps.longitude,
-                                camera.latitude,
-                                camera.longitude
-                            )
-                                .collect { crime ->
-                                    _allCrimes.value = crime
-                                }
-                        } else {
-                            crimesInfoService.getAllCrimesFromNetworkWithDate(
-                                camera.latLngBounds,
-                                gps.latitude,
-                                gps.longitude,
-                                camera.latitude,
-                                camera.longitude,
-                                _dateFilteredBy.value!!
-                            )
-                                .collect { crime ->
-                                    _allCrimes.value = crime
-                                }
-                        }
-                    }
+        _currentCameraPosition.value?.let { camera ->
+            _currentGPSPosition.value?.let { gps ->
+                categories?.let {
+                    loadCrimesWithCategories(categories, camera, gps)
+                } ?: run {
+                    loadCrimesWithoutCategories(camera, gps)
                 }
             }
         }
+    }
 
+    private fun loadCrimesWithCategories(
+        categories: List<String>,
+        camera: CameraPosition,
+        gps: LatLng
+    ) {
+        viewModelScope.launch {
+            if (_dateFilteredBy.value.isNullOrEmpty()) {
+                crimesInfoService.getRecentCrimesWithCategoriesFromNetwork(
+                    categories,
+                    camera.latLngBounds,
+                    gps.latitude,
+                    gps.longitude,
+                    camera.latitude,
+                    camera.longitude
+                ).collect { crime ->
+                    _allCrimes.value = crime
+                }
+            } else {
+                crimesInfoService.getCrimesWithCategoriesFromNetworkBasesOnNewDate(
+                    categories,
+                    camera.latLngBounds,
+                    gps.latitude,
+                    gps.longitude,
+                    camera.latitude,
+                    camera.longitude,
+                    _dateFilteredBy.value!!
+                ).collect { crime ->
+                    _allCrimes.value = crime
+                }
+            }
+        }
+    }
+
+    private fun loadCrimesWithoutCategories(camera: CameraPosition, gps: LatLng) {
+        viewModelScope.launch {
+            if (_dateFilteredBy.value.isNullOrEmpty()) {
+                crimesInfoService.getAllRecentCrimesFromNetwork(
+                    camera.latLngBounds,
+                    gps.latitude,
+                    gps.longitude,
+                    camera.latitude,
+                    camera.longitude
+                ).collect { crime ->
+                    _allCrimes.value = crime
+                }
+            } else {
+                crimesInfoService.getAllCrimesFromNetworkWithDate(
+                    camera.latLngBounds,
+                    gps.latitude,
+                    gps.longitude,
+                    camera.latitude,
+                    camera.longitude,
+                    _dateFilteredBy.value!!
+                ).collect { crime ->
+                    _allCrimes.value = crime
+                }
+            }
+        }
     }
 
     fun loadChipCategories() {
@@ -194,37 +196,6 @@ class CrimeMapFragmentViewModel(
     fun clearCheckedChipsNamesList() {
         val newList = mutableListOf<String>()
         _checkedChipsNamesList.value = newList
-    }
-
-    fun countCrimes(): StringBuilder {
-        val stringBuilder = StringBuilder()
-
-        val newCategories = _crimeCategories.value?.toMutableList()
-        val categoryNames = mutableListOf<String>()
-        if (newCategories != null) {
-            repeat(newCategories.size) { i ->
-                _crimeCategories.value?.get(i)?.name?.lowercase()
-                    ?.let { categoryNames.add(it.replace(" ", "-")) }
-            }
-        }
-        categoryNames.forEach { crimeCategoriesItem ->
-            var count = 0
-            if (crimeCategoriesItem != "all-crime") {
-                count = _allCrimes.value?.count { crimesItem ->
-                    Log.d("${crimesItem.category} ", "${crimeCategoriesItem}")
-                    crimesItem.category == crimeCategoriesItem || (crimesItem.category == "violent-crime" && crimeCategoriesItem == "violence-and-sexual-offences")
-                            || (crimesItem.category == "criminal-damage-arson" && crimeCategoriesItem == "criminal-damage-and-arson")
-                }!!
-                stringBuilder.append(
-                    "${
-                        crimeCategoriesItem.replaceFirstChar {
-                            it.uppercase()
-                        }.replace('-', ' ')
-                    } = $count \n"
-                )
-            }
-        }
-        return stringBuilder
     }
 }
 
