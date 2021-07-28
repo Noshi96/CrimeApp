@@ -2,14 +2,18 @@ package com.globallogic.knowyourcrime.uk.feature.crimemap.model
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.globallogic.knowyourcrime.R
 import com.globallogic.knowyourcrime.databinding.BottomSheetRowBinding
 import com.globallogic.knowyourcrime.uk.feature.crimemap.view.CrimeMapFragmentDirections
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.CancelableCallback
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.roundToInt
@@ -28,6 +32,7 @@ class BottomSheetAdapter(
         val locationType: TextView
         val month: TextView
         val gpsDistance: TextView
+        val icon: ImageView
 
         lateinit var googleMap: GoogleMap
 
@@ -36,6 +41,7 @@ class BottomSheetAdapter(
             locationType = bottomSheetRowBinding.textViewLocationType
             month = bottomSheetRowBinding.textViewMonth
             gpsDistance = bottomSheetRowBinding.textViewDistance
+            icon = bottomSheetRowBinding.imageViewIconBottomSheetRow
         }
     }
 
@@ -55,6 +61,7 @@ class BottomSheetAdapter(
         val distanceText = "${dataSet[position].distanceFromGPS.roundToInt()} m"
         viewHolder.gpsDistance.text = distanceText
         viewHolder.googleMap = googleMap
+        viewHolder.icon.setImageResource(returnIconIndexBasedOnCategoryName(dataSet[position].category))
 
 
         viewHolder.apply {
@@ -90,4 +97,24 @@ class BottomSheetAdapter(
 
     override fun getItemCount() = dataSet.size
 
+    private fun returnIconIndexBasedOnCategoryName(category: String): Int {
+        var index = 0
+        when(category){
+            "anti-social-behaviour" -> index = R.drawable.shout2
+            "bicycle-theft" -> index = R.drawable.bicycle
+            "burglary" -> index = R.drawable.burglar2
+            "criminal-damage-arson" -> index = R.drawable.fire
+            "drugs" -> index = R.drawable.meds
+            "other-theft" -> index = R.drawable.thief2
+            "possession-of-weapons" -> index = R.drawable.gun
+            "public-order" -> index = R.drawable.vandalism
+            "robbery" -> index = R.drawable.robbery
+            "shoplifting" -> index = R.drawable.shoppingcart
+            "theft-from-the-person" -> index = R.drawable.onlinerobbery
+            "vehicle-crime" -> index = R.drawable.car
+            "violent-crime" -> index = R.drawable.violentcrime
+            "other-crime" -> index = R.drawable.other
+        }
+        return index
+    }
 }
