@@ -16,4 +16,6 @@
     <string name="html_part">Html part</string>
     <string name="settings">Settings</string>
     <string name="credits">Credits</string>
+    <string name="current_position">current_position</string>
+    <string name="unable_to_prosecute_suspect">Unable to prosecute suspect</string>
 </resources>

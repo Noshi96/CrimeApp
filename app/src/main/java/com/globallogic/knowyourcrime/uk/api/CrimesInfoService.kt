@@ -1,6 +1,7 @@
 package com.globallogic.knowyourcrime.uk.api
 
 import android.location.Location
+import android.util.Log
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.repository.CrimesRepository
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
@@ -137,7 +138,18 @@ class CrimesInfoService(
 
         val newCategories = categories.toMutableList()
         repeat(newCategories.size) { i ->
-            newCategories[i] = categories[i].lowercase().replace(" ", "-")
+            when {
+                categories[i] == "Violence and sexual offences" -> {
+                    newCategories[i] = "violent-crime"
+                }
+                categories[i] == "Criminal damage and arson" -> {
+                    newCategories[i] = "criminal-damage-arson"
+                }
+                else -> {
+                    newCategories[i] = categories[i].lowercase().replace(" ", "-")
+                }
+            }
+
         }
 
         getAllRecentCrimesFromNetwork(
@@ -169,14 +181,24 @@ class CrimesInfoService(
 
         val newCategories = categories.toMutableList()
         repeat(newCategories.size) { i ->
-            newCategories[i] = categories[i].lowercase().replace(" ", "-")
+            when {
+                categories[i] == "Violence and sexual offences" -> {
+                    newCategories[i] = "violent-crime"
+                }
+                categories[i] == "Criminal damage and arson" -> {
+                    newCategories[i] = "criminal-damage-arson"
+                }
+                else -> {
+                    newCategories[i] = categories[i].lowercase().replace(" ", "-")
+                }
+            }
         }
 
         getAllCrimesFromNetworkWithDate(
             latLngBounds,
-            latitude,
             gpsLatitude,
             gpsLongitude,
+            latitude,
             longitude,
             date
         ).collect {

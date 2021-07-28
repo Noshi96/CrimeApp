@@ -220,12 +220,9 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         chipsList: MutableList<Chip>
     ) {
-        var chipId = 0
-
         if (viewModel.resetView) {
             binding.chipGroup.removeAllViews()
         }
-
         categoryList.forEach { categoryName ->
             val chip = layoutInflater.inflate(R.layout.chip_item, container, false) as Chip
             chip.text = categoryName
@@ -236,7 +233,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             chip.id = View.generateViewId()
             chipsList.add(chip)
             binding.chipGroup.addView(chip)
-            chipId++
         }
     }
 
@@ -275,6 +271,13 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             else
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+        }
+
+        binding.fabCurrentPosition.setOnClickListener {
+            viewModel.currentGPSPosition.value?.let {
+                setUpCamera(it.latitude, it.longitude)
+            }
         }
 
         binding.bottomSheet.sortByDistance.setOnClickListener {
@@ -439,7 +442,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         ) {
             return true
         }
-
         return false
     }
 
@@ -450,5 +452,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             LocationManager.NETWORK_PROVIDER
         )
     }
+
 
 }

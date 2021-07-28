@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.fragment.navArgs
+import com.globallogic.knowyourcrime.R
 import com.globallogic.knowyourcrime.databinding.FragmentScreenDetailsBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -46,5 +47,27 @@ class ScreenDetailsFragment : BottomSheetDialogFragment() {
         binding.textViewIdContent.text = args.crimeDetails.id.toString()
         //binding.textViewOutcomeStatusContent.text = args.crimeDetails.outcome_status.category
         binding.textViewWhereContent.text = args.crimeDetails.location.street.name
+        binding.crimeRow.imageViewIconBottomSheetRow.setImageResource(returnIconIndexBasedOnCategoryName(args.crimeDetails.category))
+    }
+
+    private fun returnIconIndexBasedOnCategoryName(category: String): Int {
+        var index = 0
+        when(category){
+            "anti-social-behaviour" -> index = R.drawable.shout2
+            "bicycle-theft" -> index = R.drawable.bicycle
+            "burglary" -> index = R.drawable.burglar2
+            "criminal-damage-arson" -> index = R.drawable.fire
+            "drugs" -> index = R.drawable.meds
+            "other-theft" -> index = R.drawable.thief2
+            "possession-of-weapons" -> index = R.drawable.gun
+            "public-order" -> index = R.drawable.vandalism
+            "robbery" -> index = R.drawable.robbery
+            "shoplifting" -> index = R.drawable.shoppingcart
+            "theft-from-the-person" -> index = R.drawable.onlinerobbery
+            "vehicle-crime" -> index = R.drawable.car
+            "violent-crime" -> index = R.drawable.violentcrime
+            "other-crime" -> index = R.drawable.other
+        }
+        return index
     }
 }
