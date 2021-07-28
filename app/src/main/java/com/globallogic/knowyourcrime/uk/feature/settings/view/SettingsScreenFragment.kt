@@ -36,7 +36,13 @@ class SettingsScreenFragment : Fragment() {
         settingsViewModel.dateValid.observe(viewLifecycleOwner) {
             binding.buttonBack.isEnabled = it
         }
-        
+
+        binding.credits.setOnClickListener {
+            val action =
+                SettingsScreenFragmentDirections.actionSettingsScreenFragmentToAboutUsFragment()
+            findNavController().navigate(action)
+        }
+
         return binding.root
     }
 
