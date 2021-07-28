@@ -45,12 +45,11 @@
             android:id="@+id/fab_current_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_horizontal_32"
+            android:layout_marginEnd="@dimen/margin_horizontal_16"
             android:contentDescription="@string/current_position"
             app:backgroundTint="@color/white"
-            app:layout_constraintBottom_toTopOf="@+id/guideline_85"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fab_settings"
+            app:layout_constraintEnd_toStartOf="@id/fab"
+            app:layout_constraintBottom_toBottomOf="@id/fab"
             app:srcCompat="@drawable/ic_baseline_person_pin_24" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -80,21 +79,23 @@
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginHorizontal="@dimen/margin_horizontal_32"
+            android:layout_marginBottom="@dimen/margin_bottom_48"
+            android:contentDescription="@string/up_fab_desc"
+            app:backgroundTint="@color/white"
+            app:srcCompat="@drawable/ic_baseline_arrow_upward_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/CoordinatorLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_marginHorizontal="@dimen/margin_horizontal_32"
-                android:layout_marginBottom="@dimen/margin_bottom_48"
-                android:contentDescription="@string/up_fab_desc"
-                app:backgroundTint="@color/white"
-                app:srcCompat="@drawable/ic_baseline_arrow_upward_24" />
 
             <include
                 android:id="@+id/bottom_sheet"
