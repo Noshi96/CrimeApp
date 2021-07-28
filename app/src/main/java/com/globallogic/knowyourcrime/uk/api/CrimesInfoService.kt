@@ -1,5 +1,6 @@
 package com.globallogic.knowyourcrime.uk.api
 
+import android.location.Location
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.repository.CrimesRepository
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
@@ -79,17 +80,57 @@ class CrimesInfoService(
 
     fun getAllRecentCrimesFromNetwork(
         latLngBounds: LatLngBounds,
+        gpsLatitude: Double,
+        gpsLongitude: Double,
         latitude: Double,
         longitude: Double
     ): Flow<Crimes> = flow {
         getLastUpdated().collect {
-            emitAll(getAllCrimesFromNetwork(latLngBounds, latitude, longitude, cutDate(it.date)))
+            var crimesWithDistance = Crimes()
+            getAllCrimesFromNetwork(latLngBounds, latitude, longitude, cutDate(it.date))
+                .collect { crimes -> crimesWithDistance = crimes }
+
+            repeat(crimesWithDistance.size) { i ->
+                crimesWithDistance[i].distanceFromGPS = getMapDistance(
+                    gpsLatitude,
+                    gpsLongitude,
+                    crimesWithDistance[i].location.latitude.toDouble(),
+                    crimesWithDistance[i].location.longitude.toDouble()
+                )
+            }
+            emit(crimesWithDistance)
         }
+    }.flowOn(Dispatchers.IO)
+
+
+    fun getAllCrimesFromNetworkWithDate(
+        latLngBounds: LatLngBounds,
+        gpsLatitude: Double,
+        gpsLongitude: Double,
+        latitude: Double,
+        longitude: Double,
+        date: String
+    ): Flow<Crimes> = flow {
+        var crimesWithDistance = Crimes()
+        getAllCrimesFromNetwork(latLngBounds, latitude, longitude, date)
+            .collect { crimes -> crimesWithDistance = crimes }
+
+        repeat(crimesWithDistance.size) { i ->
+            crimesWithDistance[i].distanceFromGPS = getMapDistance(
+                gpsLatitude,
+                gpsLongitude,
+                crimesWithDistance[i].location.latitude.toDouble(),
+                crimesWithDistance[i].location.longitude.toDouble()
+            )
+        }
+        emit(crimesWithDistance)
     }.flowOn(Dispatchers.IO)
 
     fun getRecentCrimesWithCategoriesFromNetwork(
         categories: List<String>,
         latLngBounds: LatLngBounds,
+        gpsLatitude: Double,
+        gpsLongitude: Double,
         latitude: Double,
         longitude: Double
     ): Flow<Crimes> = flow {
@@ -99,7 +140,46 @@ class CrimesInfoService(
             newCategories[i] = categories[i].lowercase().replace(" ", "-")
         }
 
-        getAllRecentCrimesFromNetwork(latLngBounds, latitude, longitude).collect {
+        getAllRecentCrimesFromNetwork(
+            latLngBounds,
+            gpsLatitude,
+            gpsLongitude,
+            latitude,
+            longitude
+        ).collect {
+            val foundCrimes = Crimes()
+            it.forEach { crime ->
+                if (newCategories.contains(crime.category)) {
+                    foundCrimes.add(crime)
+                }
+            }
+            emit(foundCrimes)
+        }
+    }.flowOn(Dispatchers.IO)
+
+    fun getCrimesWithCategoriesFromNetworkBasesOnNewDate(
+        categories: List<String>,
+        latLngBounds: LatLngBounds,
+        gpsLatitude: Double,
+        gpsLongitude: Double,
+        latitude: Double,
+        longitude: Double,
+        date: String
+    ): Flow<Crimes> = flow {
+
+        val newCategories = categories.toMutableList()
+        repeat(newCategories.size) { i ->
+            newCategories[i] = categories[i].lowercase().replace(" ", "-")
+        }
+
+        getAllCrimesFromNetworkWithDate(
+            latLngBounds,
+            latitude,
+            gpsLatitude,
+            gpsLongitude,
+            longitude,
+            date
+        ).collect {
             val foundCrimes = Crimes()
             it.forEach { crime ->
                 if (newCategories.contains(crime.category)) {
@@ -111,4 +191,18 @@ class CrimesInfoService(
     }.flowOn(Dispatchers.IO)
 
     private fun cutDate(date: String): String = date.substring(0, 7)
+
+    private fun getMapDistance(
+        startLatitude: Double,
+        startLongitude: Double,
+        endLatitude: Double,
+        endLongitude: Double
+    ): Double {
+        val result = FloatArray(1)
+        Location.distanceBetween(
+            startLatitude, startLongitude,
+            endLatitude, endLongitude, result
+        )
+        return result[0].toDouble()
+    }
 }

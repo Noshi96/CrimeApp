@@ -12,6 +12,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.CancelableCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import kotlin.math.roundToInt
 
 
 class BottomSheetAdapter(
@@ -26,12 +27,15 @@ class BottomSheetAdapter(
         val category: TextView
         val locationType: TextView
         val month: TextView
+        val gpsDistance: TextView
+
         lateinit var googleMap: GoogleMap
 
         init {
             category = bottomSheetRowBinding.textViewCategory
             locationType = bottomSheetRowBinding.textViewLocationType
             month = bottomSheetRowBinding.textViewMonth
+            gpsDistance = bottomSheetRowBinding.textViewDistance
         }
     }
 
@@ -48,6 +52,8 @@ class BottomSheetAdapter(
         }.replace('-', ' ')
         viewHolder.locationType.text = dataSet[position].location_type
         viewHolder.month.text = dataSet[position].month
+        val distanceText = "${dataSet[position].distanceFromGPS.roundToInt()} m"
+        viewHolder.gpsDistance.text = distanceText
         viewHolder.googleMap = googleMap
 
 
