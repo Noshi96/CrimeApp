@@ -276,7 +276,7 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
         binding.fabCurrentPosition.setOnClickListener {
             viewModel.currentGPSPosition.value?.let {
-                setUpCamera(it.latitude, it.longitude, 22.0f)
+                setUpCamera(it.latitude, it.longitude)
             }
         }
 
