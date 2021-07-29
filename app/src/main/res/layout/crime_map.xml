@@ -26,7 +26,6 @@
             android:paddingEnd="@dimen/padding_end_16"
             android:text="@string/know_your_crime_global_app"
             android:textAlignment="center"
-            app:drawableEndCompat="@drawable/thief2"
             app:drawableStartCompat="@drawable/unitedkingdom"
             app:layout_constraintEnd_toStartOf="@id/fab_settings"
             app:layout_constraintStart_toStartOf="parent"
