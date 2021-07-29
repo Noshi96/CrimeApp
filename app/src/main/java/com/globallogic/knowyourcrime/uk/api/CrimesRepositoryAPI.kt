@@ -14,6 +14,12 @@ interface CrimesRepositoryAPI {
         @Query("date") date: String
     ): Crimes
 
+    @GET("/api/crimes-street/all-crime")
+    suspend fun getAllCrimes(
+        @Query("poly") poly: String,
+        @Query("date") date: String
+    ): Crimes
+
     @GET("/api/crime-categories")
     suspend fun getCrimeCategories(@Query("date") date: String): CrimeCategories
 
