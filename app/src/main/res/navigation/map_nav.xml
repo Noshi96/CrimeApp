@@ -18,7 +18,7 @@
     </fragment>
     <dialog
         android:id="@+id/screenDetailsFragment"
-        android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.ScreenDetailsFragment"
+        android:name="com.globallogic.knowyourcrime.uk.feature.detailsscreen.view.ScreenDetailsFragment"
         android:label="fragment_screen_details"
         tools:layout="@layout/fragment_screen_details" >
         <argument

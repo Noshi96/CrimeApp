@@ -19,7 +19,8 @@ class KnowYourCrimeApplication : Application() {
                 crimesAPIModule,
                 crimeMapModule,
                 splashScreenModule,
-                settingsModule
+                settingsModule,
+                screenDetailsModule
             )
         }
     }
