@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.globallogic.knowyourcrime.databinding.FragmentSettingsScreenBinding
 import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
 import com.globallogic.knowyourcrime.uk.feature.settings.viewmodel.SettingsViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -23,20 +25,24 @@ class SettingsScreenFragment : Fragment() {
     private lateinit var _binding: FragmentSettingsScreenBinding
     private val binding get() = _binding
 
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSettingsScreenBinding.inflate(inflater, container, false)
+        bottomSheetBehavior =
+            BottomSheetBehavior.from(binding.bottomSheetSettings.bottomSheetSettings)
 
         settingsViewModel.countCrimesText.observe(viewLifecycleOwner) {
-            binding.htmlPart.text = it
+            binding.bottomSheetSettings.textViewCoutedCrimes.text = it
         }
 
         settingsViewModel.dateValid.observe(viewLifecycleOwner) {
             binding.buttonBack.isEnabled = it
         }
-        
+
         return binding.root
     }
 
@@ -46,6 +52,8 @@ class SettingsScreenFragment : Fragment() {
         navigateToMap()
         setCheckBoxAndEditText()
         validDateEditText()
+        buttonCountCrimesListener()
+        navigateToAboutUs()
 
         crimeMapViewModel.crimeCategories.value?.let { categories ->
             crimeMapViewModel.allCrimes.value?.let { crimes ->
@@ -90,6 +98,23 @@ class SettingsScreenFragment : Fragment() {
     private fun validDateEditText() {
         binding.editTextDateFrom.editText?.doAfterTextChanged {
             settingsViewModel.validateDate(it.toString())
+        }
+    }
+
+    private fun buttonCountCrimesListener() {
+        binding.buttonCountCrimes.setOnClickListener {
+            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            else
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
+
+    private fun navigateToAboutUs() {
+        binding.buttonAboutUs.setOnClickListener {
+            val action =
+                SettingsScreenFragmentDirections.actionSettingsScreenFragmentToAboutUsFragment()
+            findNavController().navigate(action)
         }
     }
 

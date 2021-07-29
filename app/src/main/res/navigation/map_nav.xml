@@ -14,11 +14,13 @@
             app:destination="@id/screenDetailsFragment" />
         <action
             android:id="@+id/action_crimeMapFragment_to_settingsScreenFragment"
-            app:destination="@id/settingsScreenFragment" />
+            app:destination="@id/settingsScreenFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left" />
     </fragment>
     <dialog
         android:id="@+id/screenDetailsFragment"
-        android:name="com.globallogic.knowyourcrime.uk.feature.crimemap.view.ScreenDetailsFragment"
+        android:name="com.globallogic.knowyourcrime.uk.feature.detailsscreen.view.ScreenDetailsFragment"
         android:label="fragment_screen_details"
         tools:layout="@layout/fragment_screen_details" >
         <argument
@@ -31,6 +33,23 @@
         android:label="SettingsScreenFragment" >
         <action
             android:id="@+id/action_settingsScreenFragment_to_crimeMapFragment"
-            app:destination="@id/crimeMapFragment" />
+            app:destination="@id/crimeMapFragment"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right" />
+        <action
+            android:id="@+id/action_settingsScreenFragment_to_aboutUsFragment"
+            app:destination="@id/aboutUsFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left" />
+    </fragment>
+    <fragment
+        android:id="@+id/aboutUsFragment"
+        android:name="com.globallogic.knowyourcrime.uk.feature.settings.view.AboutUsFragment"
+        android:label="AboutUsFragment" >
+        <action
+            android:id="@+id/action_aboutUsFragment_to_settingsScreenFragment"
+            app:destination="@id/settingsScreenFragment"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right" />
     </fragment>
 </navigation>

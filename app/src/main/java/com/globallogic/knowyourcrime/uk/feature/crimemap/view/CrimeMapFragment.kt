@@ -19,47 +19,30 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.globallogic.knowyourcrime.R
 import com.globallogic.knowyourcrime.databinding.CrimeMapBinding
-import com.globallogic.knowyourcrime.uk.feature.crimemap.model.BottomSheetAdapter
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItem
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.CrimesItemMarker
 import com.globallogic.knowyourcrime.uk.feature.crimemap.viewmodel.CrimeMapFragmentViewModel
-import com.google.android.gms.location.*
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.coroutines.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
-import kotlin.math.abs
-
-private const val OFFLINE_GPS_LATITUDE = 52.21434496480181
-private const val OFFLINE_GPS_LONGITUDE = 0.12568139995511415
 
 private const val GPS_FETCH_TIMEOUT = 1000L
 private const val GPS_FETCH_INTERVAL = 100L
 
-private const val DEFAULT_CAMERA_ZOOM = 16.0f
-private const val DETAILS_CAMERA_ZOOM = 22.0f
-private const val DETAILS_CAMERA_ZOOM_LATITUDE_OFFSET = 0.00005443289f
-private const val DETAILS_CAMERA_ZOOM_LONGITUDE_OFFSET = 0.00000268221f
-
-private const val FETCH_LATITUDE_OFFSET = 0.006
-private const val FETCH_LONGITUDE_OFFSET = 0.006
-private const val FETCH_ZOOM_OFFSET = 0.001f
-
-class CrimeMapFragment : Fragment(), OnMapReadyCallback {
-
-    companion object {
-        val PERMISSIONS = arrayOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-    }
+class CrimeMapFragment : Fragment() {
 
     private val viewModel by sharedViewModel<CrimeMapFragmentViewModel>()
     private lateinit var _binding: CrimeMapBinding
@@ -68,12 +51,10 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var googleMap: GoogleMap
     private lateinit var clusterManager: ClusterManager<CrimesItemMarker>
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-
     private lateinit var bottomSheetAdapter: BottomSheetAdapter
-
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
 
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
 
@@ -139,21 +120,15 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             maxWaitTime = GPS_FETCH_INTERVAL
         }
-        locationCallback = object : LocationCallback() {
-            var firstCallback = true
-            override fun onLocationResult(locationResult: LocationResult) {
-                if (firstCallback) {
-                    val location = locationResult.lastLocation
-                    setUpCamera(location.latitude, location.longitude)
-                    firstCallback = false
-                }
 
-                if (locationResult.locations.isNotEmpty()) {
-                    val location = locationResult.lastLocation
-                    viewModel.updateCurrentGPSPosition(location.latitude, location.longitude)
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) {
+                if (::googleMap.isInitialized) {
+                    locationCallback = viewModel.initLocationCallback(googleMap)
                 }
             }
         }
+
     }
 
     private fun setGPSMarker(latLng: LatLng) {
@@ -260,7 +235,20 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
     private fun loadGoogleMaps() {
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        mapFragment.getMapAsync { handleGoogleMapLoaded(it) }
+    }
+
+    private fun handleGoogleMapLoaded(map: GoogleMap) {
+        googleMap = map
+        initClusterManager()
+        viewModel.loadCrimesToMapBasedOnCamera(googleMap)
+        viewModel.initFusedLocationClient(
+            googleMap,
+            fusedLocationClient,
+            permissionRequestLauncher,
+            isLocationEnabled(),
+            checkLocationPermission()
+        )
     }
 
     private fun loadBottomSheet() {
@@ -271,13 +259,10 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             else
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-
         }
 
         binding.fabCurrentPosition.setOnClickListener {
-            viewModel.currentGPSPosition.value?.let {
-                setUpCamera(it.latitude, it.longitude)
-            }
+            viewModel.setUpCameraToCurrentGPSPosition(googleMap)
         }
 
         binding.bottomSheet.sortByDistance.setOnClickListener {
@@ -293,39 +278,6 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             bottomSheetAdapter.notifyDataSetChanged()
             binding.bottomSheet.recyclerViewBottomSheet.smoothScrollToPosition(0)
         }
-
-    }
-
-    override fun onMapReady(map: GoogleMap) {
-        googleMap = map
-        initClusterManager()
-        loadCrimesToMapBasedOnCamera()
-        initFusedLocationClient()
-    }
-
-    private fun loadCrimesToMapBasedOnCamera() {
-        var oldPositionLat = .0
-        var oldPositionLng = .0
-        var oldZoom = .0f
-
-        googleMap.setOnCameraIdleListener {
-            viewModel.updateCurrentCameraPosition(
-                googleMap.projection.visibleRegion.latLngBounds,
-                googleMap.cameraPosition.target.latitude,
-                googleMap.cameraPosition.target.longitude
-            )
-
-            val distanceLat = abs(oldPositionLat - googleMap.cameraPosition.target.latitude)
-            val distanceLng = abs(oldPositionLng - googleMap.cameraPosition.target.longitude)
-            val differenceZoom = abs(oldZoom - googleMap.cameraPosition.zoom)
-
-            if ((distanceLat > FETCH_LATITUDE_OFFSET || distanceLng > FETCH_LONGITUDE_OFFSET || differenceZoom > FETCH_ZOOM_OFFSET)) {
-                viewModel.loadAllCrimes()
-                oldPositionLat = googleMap.cameraPosition.target.latitude
-                oldPositionLng = googleMap.cameraPosition.target.longitude
-                oldZoom = googleMap.cameraPosition.zoom
-            }
-        }
     }
 
     private fun initClusterManager() {
@@ -339,54 +291,11 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
         )
 
         clusterManager.setOnClusterItemClickListener {
-            val crimesItem: CrimesItem = viewModel.getCrimesItemById(it.crimeId) ?: CrimesItem()
-            val action =
-                CrimeMapFragmentDirections.actionCrimeMapFragmentToScreenDetailsFragment(
-                    crimesItem
-                )
-            val offsetLatSub = DETAILS_CAMERA_ZOOM_LATITUDE_OFFSET
-            val offsetLongSub = DETAILS_CAMERA_ZOOM_LONGITUDE_OFFSET
-            val latLng = LatLng(
-                crimesItem.location.latitude.toDouble() - offsetLatSub,
-                crimesItem.location.longitude.toDouble() - offsetLongSub
-            )
-
-            val cameraPosition = CameraPosition.Builder()
-                .target(latLng).zoom(DETAILS_CAMERA_ZOOM).build()
-
-            googleMap.uiSettings.isScrollGesturesEnabled = false
-            googleMap.animateCamera(
-                CameraUpdateFactory.newCameraPosition(cameraPosition),
-                object : GoogleMap.CancelableCallback {
-                    override fun onFinish() {
-                        googleMap.uiSettings.isScrollGesturesEnabled = true
-                        view?.findNavController()?.navigate(action)
-                    }
-
-                    override fun onCancel() {
-                        googleMap.uiSettings.setAllGesturesEnabled(true)
-                    }
-                })
-
+            viewModel.handleOnClusterItemClick(googleMap, it) { action ->
+                view?.findNavController()?.navigate(action)
+            }
             true
         }
-    }
-
-    private fun setUpCamera(latitude: Double, longitude: Double) {
-        val latLng = LatLng(latitude, longitude)
-
-        googleMap.uiSettings.isScrollGesturesEnabled = false
-        googleMap.animateCamera(
-            CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_CAMERA_ZOOM),
-            object : GoogleMap.CancelableCallback {
-                override fun onFinish() {
-                    googleMap.uiSettings.isScrollGesturesEnabled = true
-                }
-
-                override fun onCancel() {
-                    googleMap.uiSettings.setAllGesturesEnabled(true)
-                }
-            })
     }
 
     override fun onResume() {
@@ -401,32 +310,22 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) {
+                if (::locationCallback.isInitialized) {
+                    fusedLocationClient.requestLocationUpdates(
+                        locationRequest,
+                        locationCallback,
+                        Looper.getMainLooper()
+                    )
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initFusedLocationClient() {
-        fusedLocationClient.lastLocation.addOnSuccessListener {
-            viewModel.updateCurrentGPSPosition(it.latitude, it.longitude)
-        }
-        fusedLocationClient.lastLocation.addOnCompleteListener {
-            if (!isLocationEnabled() || !checkLocationPermission()) {
-                permissionRequestLauncher.launch(PERMISSIONS)
-            }
-        }
-        fusedLocationClient.lastLocation.addOnFailureListener {
-            viewModel.updateCurrentGPSPosition(OFFLINE_GPS_LATITUDE, OFFLINE_GPS_LONGITUDE)
-            setUpCamera(OFFLINE_GPS_LATITUDE, OFFLINE_GPS_LONGITUDE)
-        }
     }
 
     private fun checkLocationPermission(): Boolean {
@@ -452,6 +351,4 @@ class CrimeMapFragment : Fragment(), OnMapReadyCallback {
             LocationManager.NETWORK_PROVIDER
         )
     }
-
-
 }

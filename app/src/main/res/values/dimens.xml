@@ -2,7 +2,7 @@
 <resources>
     <dimen name="dp_0">0dp</dimen>
     <dimen name="search_view_margin_top">24dp</dimen>
-    <dimen name="search_view_height">48dp</dimen>
+    <dimen name="search_view_height">42dp</dimen>
     <dimen name="search_view_margin">16dp</dimen>
     <dimen name="elevation_value">15dp</dimen>
     <dimen name="horizontal_scroll_view_margin_top">8dp</dimen>
@@ -24,7 +24,6 @@
     <dimen name="layout_height_2">2dp</dimen>
     <dimen name="margin_top_16">16dp</dimen>
     <dimen name="margin_horizontal_32">32dp</dimen>
-    <dimen name="margin_bottom_64">64dp</dimen>
     <dimen name="padding_bottom_16">16dp</dimen>
     <dimen name="padding_horizontal_16">16dp</dimen>
     <dimen name="place_icon_width">48dp</dimen>
@@ -36,4 +35,6 @@
     <dimen name="layout_margin_32">32dp</dimen>
     <dimen name="margin_bottom_48">48dp</dimen>
     <dimen name="margin_horizontal_16">16dp</dimen>
+    <dimen name="padding_end_48">48dp</dimen>
+    <dimen name="padding_start_16">16dp</dimen>
 </resources>

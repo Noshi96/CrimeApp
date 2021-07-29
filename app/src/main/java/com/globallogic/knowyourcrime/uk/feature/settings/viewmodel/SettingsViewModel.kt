@@ -30,7 +30,6 @@ class SettingsViewModel : ViewModel() {
             var count = 0
             if (crimeCategoriesItem != "all-crime") {
                 count = allCrimes.count { crimesItem ->
-                    Log.d("${crimesItem.category} ", crimeCategoriesItem)
                     crimesItem.category == crimeCategoriesItem || (crimesItem.category == "violent-crime" && crimeCategoriesItem == "violence-and-sexual-offences")
                             || (crimesItem.category == "criminal-damage-arson" && crimeCategoriesItem == "criminal-damage-and-arson")
                 }!!

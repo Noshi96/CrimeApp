@@ -1,7 +1,6 @@
 package com.globallogic.knowyourcrime.uk.api
 
 import android.location.Location
-import android.util.Log
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.Crimes
 import com.globallogic.knowyourcrime.uk.feature.crimemap.model.repository.CrimesRepository
 import com.globallogic.knowyourcrime.uk.feature.splashscreen.model.CrimeCategories
@@ -21,27 +20,20 @@ class CrimesInfoService(
     private val crimesRepository: CrimesRepository
 ) {
 
-    fun getLastUpdated(): Flow<LastUpdated> = try {
+    private fun getLastUpdated(): Flow<LastUpdated> = try {
         lastUpdatedRepository.getLastUpdated()
     } catch (exception: Exception) {
         flowOf(LastUpdated(OFFLINE_LAST_UPDATED))
     }
 
 
-    fun getCrimeCategories(date: String): Flow<CrimeCategories> = try {
+    private fun getCrimeCategories(date: String): Flow<CrimeCategories> = try {
         crimeCategoriesRepository.getCrimeCategories(date)
     } catch (exception: Exception) {
         flowOf(CrimeCategories())
     }
 
-    fun getAllCrimesFromNetwork(latitude: Double, longitude: Double, date: String): Flow<Crimes> =
-        try {
-            crimesRepository.getAllCrimes(latitude, longitude, date)
-        } catch (exception: Exception) {
-            flowOf(Crimes())
-        }
-
-    fun getAllCrimesFromNetwork(
+    private fun getAllCrimesFromNetwork(
         latLngBounds: LatLngBounds,
         latitude: Double,
         longitude: Double,
@@ -70,12 +62,6 @@ class CrimesInfoService(
     fun getRecentCrimeCategories(): Flow<CrimeCategories> = flow {
         getLastUpdated().collect {
             emitAll(getCrimeCategories(cutDate(it.date)))
-        }
-    }.flowOn(Dispatchers.IO)
-
-    fun getAllRecentCrimesFromNetwork(latitude: Double, longitude: Double): Flow<Crimes> = flow {
-        getLastUpdated().collect {
-            emitAll(getAllCrimesFromNetwork(latitude, longitude, cutDate(it.date)))
         }
     }.flowOn(Dispatchers.IO)
 
