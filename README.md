@@ -1,6 +1,6 @@
 # KnowYourCrime
 
-## A mobile app useful for people living in the UK. The app shows users the locations on a map where a crime has occurred. It shows the type of crime, the distance from the user where it happened, and other details.
+#### A mobile app useful for people living in the UK. The app shows users the locations on a map where a crime has occurred. It shows the type of crime, the distance from the user where it happened, and other details.
 
 ![image](https://user-images.githubusercontent.com/38572172/159183775-b8291c58-5734-4b61-900a-4468ad0cfc9b.png)
 ![image](https://user-images.githubusercontent.com/38572172/159183751-b5054683-56fc-4993-b7f8-172e0e16a8a1.png)
